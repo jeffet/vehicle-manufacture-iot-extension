@@ -9,8 +9,8 @@
         organization_name: "{{ ordering_org_name }}"
         organization_msp_id: "{{ ordering_service_msp }}"
       vars_files:
-        - vars/common.yml
-        - vars/ordering-org.yml
+        - ../vars/common.yml
+        - ../vars/ordering-org.yml
       roles:
         - ibm.blockchain_platform.ordering_organization
     

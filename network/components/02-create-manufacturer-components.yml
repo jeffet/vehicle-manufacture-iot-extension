@@ -11,7 +11,7 @@
         ca_name: "{{ manufacturer_ca_name }}"
         peer_name: "{{ manufacturer_peer_name }}"
       vars_files:
-        - vars/common.yml
-        - vars/manufacturer-org.yml
+        - ../vars/common.yml
+        - ../vars/manufacturer-org.yml
       roles:
         - ibm.blockchain_platform.endorsing_organization

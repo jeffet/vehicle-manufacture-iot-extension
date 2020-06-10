@@ -11,7 +11,7 @@
         ca_name: "{{ insurer_ca_name }}"
         peer_name: "{{ insurer_peer_name }}"
       vars_files:
-        - vars/common.yml
-        - vars/insurer-org.yml
+        - ../vars/common.yml
+        - ../vars/insurer-org.yml
       roles:
         - ibm.blockchain_platform.endorsing_organization

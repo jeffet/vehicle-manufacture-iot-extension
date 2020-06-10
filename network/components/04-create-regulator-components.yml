@@ -11,7 +11,7 @@
         ca_name: "{{ regulator_ca_name }}"
         peer_name: "{{ regulator_peer_name }}"
       vars_files:
-        - vars/common.yml
-        - vars/regulator-org.yml
+        - ../vars/common.yml
+        - ../vars/regulator-org.yml
       roles:
         - ibm.blockchain_platform.endorsing_organization
