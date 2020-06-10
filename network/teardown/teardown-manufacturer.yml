@@ -1,0 +1,16 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+- name: Delete components for manufacturer organization
+  hosts: localhost
+  vars:
+    state: absent
+    organization_name: "{{ manufacturer_name }}"
+    ca_name: "{{ manufacturer_ca_name }}"
+    peer_name: "{{ manufacturer_peer_name }}"
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/manufacturer-org.yml
+  roles:
+    - ibm.blockchain_platform.endorsing_organization

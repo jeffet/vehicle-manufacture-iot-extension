@@ -1,0 +1,16 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+- name: Delete components for insurer organization
+  hosts: localhost
+  vars:
+    state: absent
+    organization_name: "{{ insurer_name }}"
+    ca_name: "{{ insurer_ca_name }}"
+    peer_name: "{{ insurer_peer_name }}"
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/insurer-org.yml
+  roles:
+    - ibm.blockchain_platform.endorsing_organization

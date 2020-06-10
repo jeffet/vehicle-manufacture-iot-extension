@@ -82,3 +82,6 @@ vm_demo_logs_*
 **/checkpointers
 
 package-lock.json
+
+network/output/*
+!network/output/.gitkeep

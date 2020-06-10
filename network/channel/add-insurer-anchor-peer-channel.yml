@@ -7,6 +7,7 @@
       vars_files:
         - ../vars/common.yml
         - ../vars/insurer-org.yml
+        - ../vars/ordering-org.yml
       tasks:
         - name: Get the ordering service information
           ibm.blockchain_platform.ordering_service_info:
@@ -31,7 +32,7 @@
             api_secret: "{{ api_secret | default(omit) }}"
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             ordering_service: "{{ ordering_service_name }}"
-            identity: "{{ insurer_name }} Admin.json"
+            identity: "../ouput/{{ insurer_name }}/Admin.json"
             msp_id: "{{ insurer_msp_id }}"
             operation: fetch
             name: "{{ channel_name }}"
@@ -67,7 +68,7 @@
         - name: Sign the channel configuration update
           ibm.blockchain_platform.channel_config:
             operation: sign_update
-            identity: "{{ insurer_name }} Admin.json"
+            identity: "../ouput/{{ insurer_name }}/Admin.json"
             msp_id: "{{ insurer_msp_id }}"
             name: "{{ channel_name }}"
             path: config_update.bin
@@ -82,7 +83,7 @@
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             operation: apply_update
             ordering_service: "{{ ordering_service_name }}"
-            identity: "{{ insurer_name }} Admin.json"
+            identity: "../ouput/{{ insurer_name }}/Admin.json"
             msp_id: "{{ insurer_msp_id }}"
             name: "{{ channel_name }}"
             path: config_update.bin

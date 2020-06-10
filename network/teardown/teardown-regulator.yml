@@ -1,0 +1,16 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+- name: Delete components for regulator organization
+  hosts: localhost
+  vars:
+    state: absent
+    organization_name: "{{ regulator_name }}"
+    ca_name: "{{ regulator_ca_name }}"
+    peer_name: "{{ regulator_peer_name }}"
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/regulator-org.yml
+  roles:
+    - ibm.blockchain_platform.endorsing_organization

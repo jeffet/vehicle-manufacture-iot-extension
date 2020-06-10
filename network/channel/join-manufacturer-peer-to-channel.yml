@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 ---
-    - name: Regulator join the channel
+    - name: Manufacturer join the channel
       hosts: localhost
       vars_files:
         - ../vars/common.yml
-        - ../vars/regulator-org.yml
+        - ../vars/manufacturer-org.yml
+        - ../vars/ordering-org.yml
       tasks:
         - name: Fetch the genesis block for the channel
           ibm.blockchain_platform.channel_block:
@@ -17,8 +18,8 @@
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             operation: fetch
             ordering_service: "{{ ordering_service_name }}"
-            identity: "{{ regulator_name }} Admin.json"
-            msp_id: "{{ regulator_msp_id }}"
+            identity: "../ouput/{{ manufacturer_name }}/Admin.json"
+            msp_id: "{{ manufacturer_msp_id }}"
             name: "{{ channel_name }}"
             target: "0"
             path: channel_genesis_block.bin
@@ -31,8 +32,8 @@
             api_secret: "{{ api_secret | default(omit) }}"
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             operation: join
-            peer: "{{ regulator_peer_name }}"
-            identity: "{{ regulator_name }} Admin.json"
-            msp_id: "{{ regulator_msp_id }}"
+            peer: "{{ manufacturer_peer_name }}"
+            identity: "../ouput/{{ manufacturer_name }}/Admin.json"
+            msp_id: "{{ manufacturer_msp_id }}"
             path: channel_genesis_block.bin
     

@@ -1,0 +1,11 @@
+---
+- name: Delete components for ordering organization
+  hosts: localhost
+  vars:
+    state: absent
+    organization_name: "{{ ordering_org_name }}"
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/ordering-org.yml
+  roles:
+    - ibm.blockchain_platform.ordering_organization

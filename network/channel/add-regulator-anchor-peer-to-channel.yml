@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 ---
-    - name: Add manufacturer anchor peer to the channel
+    - name: Add regulator anchor peer to the channel
       hosts: localhost
       vars_files:
         - ../vars/common.yml
-        - ../vars/manufacturer-org.yml
+        - ../vars/regulator-org.yml
+        - ../vars/ordering-org.yml
       tasks:
         - name: Get the ordering service information
           ibm.blockchain_platform.ordering_service_info:
@@ -31,8 +32,8 @@
             api_secret: "{{ api_secret | default(omit) }}"
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             ordering_service: "{{ ordering_service_name }}"
-            identity: "{{ manufacturer_name }} Admin.json"
-            msp_id: "{{ manufacturer_msp_id }}"
+            identity: "../ouput/{{ regulator_name }}/Admin.json"
+            msp_id: "{{ regulator_msp_id }}"
             operation: fetch
             name: "{{ channel_name }}"
             path: original_config.bin
@@ -50,9 +51,9 @@
             api_key: "{{ api_key }}"
             api_secret: "{{ api_secret | default(omit) }}"
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
-            organization: "{{ manufacturer_name }}"
+            organization: "{{ regulator_name }}"
             anchor_peers:
-              - "{{ manufacturer_peer_name }}"
+              - "{{ regulator_peer_name }}"
             path: updated_config.bin
     
         - name: Compute the channel configuration update
@@ -67,8 +68,8 @@
         - name: Sign the channel configuration update
           ibm.blockchain_platform.channel_config:
             operation: sign_update
-            identity: "{{ manufacturer_name }} Admin.json"
-            msp_id: "{{ manufacturer_msp_id }}"
+            identity: "../ouput/{{ regulator_name }}/Admin.json"
+            msp_id: "{{ regulator_msp_id }}"
             name: "{{ channel_name }}"
             path: config_update.bin
           when: compute_update.path
@@ -82,8 +83,8 @@
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             operation: apply_update
             ordering_service: "{{ ordering_service_name }}"
-            identity: "{{ manufacturer_name }} Admin.json"
-            msp_id: "{{ manufacturer_msp_id }}"
+            identity: "../ouput/{{ regulator_name }}/Admin.json"
+            msp_id: "{{ regulator_msp_id }}"
             name: "{{ channel_name }}"
             path: config_update.bin
           when: compute_update.path

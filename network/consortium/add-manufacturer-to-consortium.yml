@@ -32,16 +32,16 @@
             api_secret: "{{ api_secret | default(omit) }}"
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             ordering_service: "{{ ordering_service_name }}"
-            identity: "{{ ordering_org_name }} Admin.json"
+            identity: "../output/{{ ordering_org_name }}/Admin.json"
             msp_id: "{{ ordering_service_msp }}"
             operation: fetch
             name: "{{ ordering_service.ordering_service[0].system_channel_id }}"
-            path: original_config.bin
+            path: ../output/original_config.bin
     
         - name: Create a copy of the system channel configuration
           copy:
-            src: original_config.bin
-            dest: updated_config.bin
+            src: ../output/original_config.bin
+            dest: ../output/updated_config.bin
     
         - name: Add the organization to the consortium
           ibm.blockchain_platform.consortium_member:
@@ -52,21 +52,21 @@
             api_secret: "{{ api_secret | default(omit) }}"
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             organization: "{{ manufacturer_name }}"
-            path: updated_config.bin
+            path: ../output/updated_config.bin
     
         - name: Compute the system channel configuration update
           ibm.blockchain_platform.channel_config:
             operation: compute_update
             name: "{{ ordering_service.ordering_service[0].system_channel_id }}"
-            original: original_config.bin
-            updated: updated_config.bin
+            original: ../output/original_config.bin
+            updated: ../output/updated_config.bin
             path: config_update.bin
           register: compute_update
     
         - name: Sign the system channel configuration update
           ibm.blockchain_platform.channel_config:
             operation: sign_update
-            identity: "{{ ordering_org_name }} Admin.json"
+            identity: "../output/{{ ordering_org_name }}/Admin.json"
             msp_id: "{{ ordering_service_msp }}"
             name: "{{ ordering_service.ordering_service[0].system_channel_id }}"
             path: config_update.bin
@@ -81,7 +81,7 @@
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             operation: apply_update
             ordering_service: "{{ ordering_service_name }}"
-            identity: "{{ ordering_org_name }} Admin.json"
+            identity: "../output/{{ ordering_org_name }}/Admin.json"
             msp_id: "{{ ordering_service_msp }}"
             name: "{{ ordering_service.ordering_service[0].system_channel_id }}"
             path: config_update.bin
