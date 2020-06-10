@@ -1,0 +1,16 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+    - name: Create components for the ordering organization
+      hosts: localhost
+      vars:
+        state: present
+        organization_name: "{{ ordering_org_name }}"
+        organization_msp_id: "{{ ordering_service_msp }}"
+      vars_files:
+        - vars/common.yml
+        - vars/ordering-org.yml
+      roles:
+        - ibm.blockchain_platform.ordering_organization
+    

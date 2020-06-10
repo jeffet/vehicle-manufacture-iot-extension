@@ -1,0 +1,18 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+    regulator_name: "VDA"
+    regulator_msp_id: VDAMSP
+    regulator_ca_name: "VDA CA"
+    regulator_peer_name: "VDA Peer"
+    ca_admin_enrollment_id: admin
+    ca_admin_enrollment_secret: adminpw
+    organization_admin_enrollment_id: vdaAdmin
+    organization_admin_enrollment_secret: vdaAdminpw
+    peer_enrollment_id: vdaPeer
+    peer_enrollment_secret: vdaPeerpw
+    application_enrollment_id: vdaApp
+    application_enrollment_secret: vdaApppw
+    application_enrollment_type: client
+    application_max_enrollments: 10

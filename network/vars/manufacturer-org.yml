@@ -1,0 +1,18 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+    manufacturer_name: "Arium"
+    manufacturer_msp_id: AriumMSP
+    manufacturer_ca_name: "Arium CA"
+    manufacturer_peer_name: "Arium Peer"
+    ca_admin_enrollment_id: admin
+    ca_admin_enrollment_secret: adminpw
+    organization_admin_enrollment_id: ariumAdmin
+    organization_admin_enrollment_secret: ariumAdminpw
+    peer_enrollment_id: ariumPeer
+    peer_enrollment_secret: ariumPeerpw
+    application_enrollment_id: ariumApp
+    application_enrollment_secret: ariumApppw
+    application_enrollment_type: client
+    application_max_enrollments: 10

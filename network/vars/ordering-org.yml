@@ -1,0 +1,14 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+    ordering_org_name: "Ordering Org"
+    ordering_service_name: "Ordering Service"
+    ordering_service_msp: OrdererMSP
+    ca_admin_enrollment_id: admin
+    ca_admin_enrollment_secret: adminpw
+    organization_admin_enrollment_id: orderingOrgAdmin
+    organization_admin_enrollment_secret: orderingOrgAdminpw
+    ordering_service_enrollment_id: orderingOrgOrderer
+    ordering_service_enrollment_secret: orderingOrgOrdererpw
+    ordering_service_nodes: 1
