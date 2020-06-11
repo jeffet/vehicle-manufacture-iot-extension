@@ -60,7 +60,7 @@
             name: "{{ ordering_service.ordering_service[0].system_channel_id }}"
             original: ../output/original_config.bin
             updated: ../output/updated_config.bin
-            path: config_update.bin
+            path: ../output/config_update.bin
           register: compute_update
     
         - name: Sign the system channel configuration update
@@ -69,7 +69,7 @@
             identity: "../output/{{ ordering_org_name }}/Admin.json"
             msp_id: "{{ ordering_service_msp }}"
             name: "{{ ordering_service.ordering_service[0].system_channel_id }}"
-            path: config_update.bin
+            path: ../output/config_update.bin
           when: compute_update.path
     
         - name: Apply the system channel configuration update
@@ -84,6 +84,6 @@
             identity: "../output/{{ ordering_org_name }}/Admin.json"
             msp_id: "{{ ordering_service_msp }}"
             name: "{{ ordering_service.ordering_service[0].system_channel_id }}"
-            path: config_update.bin
+            path: ../output/config_update.bin
           when: compute_update.path
     

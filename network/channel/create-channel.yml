@@ -22,7 +22,7 @@
             msp_id: "{{ regulator_msp_id }}"
             name: "{{ channel_name }}"
             target: "0"
-            path: channel_genesis_block.bin
+            path: ../output/channel_genesis_block.bin
           failed_when: False
           register: result
     
@@ -40,7 +40,7 @@
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             operation: create
             name: "{{ channel_name }}"
-            path: config_update.bin
+            path: ../output/config_update.bin
             organizations:
               - "{{ regulator_name }}"
             policies:
@@ -55,7 +55,7 @@
             identity: "../ouput/{{ regulator_name }}/Admin.json"
             msp_id: "{{ regulator_msp_id }}"
             name: "{{ channel_name }}"
-            path: config_update.bin
+            path: ../output/config_update.bin
           when: result.msg is defined and 'NOT_FOUND' in result.msg
     
         - name: Apply the channel configuration update for the new channel
@@ -70,6 +70,6 @@
             identity: "../ouput/{{ regulator_name }}/Admin.json"
             msp_id: "{{ regulator_msp_id }}"
             name: "{{ channel_name }}"
-            path: config_update.bin
+            path: ../output/config_update.bin
           when: result.msg is defined and 'NOT_FOUND' in result.msg
     

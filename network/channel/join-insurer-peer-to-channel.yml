@@ -22,7 +22,7 @@
             msp_id: "{{ insurer_msp_id }}"
             name: "{{ channel_name }}"
             target: "0"
-            path: channel_genesis_block.bin
+            path: ../output/channel_genesis_block.bin
     
         - name: Join the peer to the channel
           ibm.blockchain_platform.peer_channel:
@@ -35,5 +35,5 @@
             peer: "{{ insurer_peer_name }}"
             identity: "../ouput/{{ insurer_name }}/Admin.json"
             msp_id: "{{ insurer_msp_id }}"
-            path: channel_genesis_block.bin
+            path: ../output/channel_genesis_block.bin
     

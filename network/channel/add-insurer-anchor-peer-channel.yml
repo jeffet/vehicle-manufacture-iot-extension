@@ -36,12 +36,12 @@
             msp_id: "{{ insurer_msp_id }}"
             operation: fetch
             name: "{{ channel_name }}"
-            path: original_config.bin
+            path: ../output/original_config.bin
     
         - name: Create a copy of the channel configuration
           copy:
-            src: original_config.bin
-            dest: updated_config.bin
+            src: ../output/original_config.bin
+            dest: ../output/updated_config.bin
     
         - name: Update the organization
           ibm.blockchain_platform.channel_member:
@@ -54,15 +54,15 @@
             organization: "{{ insurer_name }}"
             anchor_peers:
               - "{{ insurer_peer_name }}"
-            path: updated_config.bin
+            path: ../output/updated_config.bin
     
         - name: Compute the channel configuration update
           ibm.blockchain_platform.channel_config:
             operation: compute_update
             name: "{{ channel_name }}"
-            original: original_config.bin
-            updated: updated_config.bin
-            path: config_update.bin
+            original: ../output/original_config.bin
+            updated: ../output/updated_config.bin
+            path: ../output/config_update.bin
           register: compute_update
     
         - name: Sign the channel configuration update
@@ -71,7 +71,7 @@
             identity: "../ouput/{{ insurer_name }}/Admin.json"
             msp_id: "{{ insurer_msp_id }}"
             name: "{{ channel_name }}"
-            path: config_update.bin
+            path: ../output/config_update.bin
           when: compute_update.path
     
         - name: Apply the channel configuration update
@@ -86,6 +86,6 @@
             identity: "../ouput/{{ insurer_name }}/Admin.json"
             msp_id: "{{ insurer_msp_id }}"
             name: "{{ channel_name }}"
-            path: config_update.bin
+            path: ../output/config_update.bin
           when: compute_update.path
     
