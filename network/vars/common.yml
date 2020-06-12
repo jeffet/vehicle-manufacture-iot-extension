@@ -9,5 +9,5 @@
     channel_name: "vehiclemanufacture"
     smart_contract_name: "vehicle-manufacture-chaincode"
     smart_contract_version: "1.1.0"
-    smart_contract_package: "vehicle-manufacture-chaincode@1.1.0.cds"
+    smart_contract_package: "../chaincode/vehicle-manufacture-chaincode@1.1.0.tar.gz"
     wait_timeout: 600
