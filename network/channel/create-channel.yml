@@ -44,9 +44,9 @@
             organizations:
               - "{{ regulator_name }}"
             policies:
-              Admins: "{{ lookup('template', 'policy.json.j2') }}"
-              Readers: "{{ lookup('template', 'policy.json.j2') }}"
-              Writers: "{{ lookup('template', 'policy.json.j2') }}"
+              Admins: "{{ lookup('template', 'admins-policy.json.j2') }}"
+              Readers: "{{ lookup('template', 'readers-policy.json.j2') }}"
+              Writers: "{{ lookup('template', 'writers-policy.json.j2') }}"
           when: result.msg is defined and 'NOT_FOUND' in result.msg
     
         - name: Sign the channel configuration update for the new channel

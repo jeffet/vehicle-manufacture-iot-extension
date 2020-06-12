@@ -18,6 +18,20 @@
                     "msp_identifier": "{{ regulator_msp_id }}",
                     "role": "ADMIN"
                 }
+            },
+            {
+                "principal_classification": "ROLE",
+                "principal": {
+                    "msp_identifier": "{{ manufacturer_msp_id }}",
+                    "role": "ADMIN"
+                }
+            },
+            {
+                "principal_classification": "ROLE",
+                "principal": {
+                    "msp_identifier": "{{ insurer_msp_id }}",
+                    "role": "ADMIN"
+                }
             }
         ]
     }
