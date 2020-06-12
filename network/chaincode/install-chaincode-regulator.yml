@@ -16,6 +16,6 @@
             api_secret: "{{ api_secret | default(omit) }}"
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             peer: "{{ regulator_peer_name }}"
-            identity: "../ouput/{{ regulator_name }}/Admin.json"
+            identity: "../output/{{ regulator_name }}/Admin.json"
             msp_id: "{{ regulator_msp_id }}"
             path: "{{ smart_contract_package }}"

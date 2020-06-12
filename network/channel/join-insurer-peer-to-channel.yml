@@ -18,7 +18,7 @@
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             operation: fetch
             ordering_service: "{{ ordering_service_name }}"
-            identity: "../ouput/{{ insurer_name }}/Admin.json"
+            identity: "../output/{{ insurer_name }}/Admin.json"
             msp_id: "{{ insurer_msp_id }}"
             name: "{{ channel_name }}"
             target: "0"
@@ -33,7 +33,7 @@
             api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
             operation: join
             peer: "{{ insurer_peer_name }}"
-            identity: "../ouput/{{ insurer_name }}/Admin.json"
+            identity: "../output/{{ insurer_name }}/Admin.json"
             msp_id: "{{ insurer_msp_id }}"
             path: ../output/channel_genesis_block.bin
     
