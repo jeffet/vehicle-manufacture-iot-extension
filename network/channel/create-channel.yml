@@ -7,6 +7,8 @@
       vars_files:
         - ../vars/common.yml
         - ../vars/regulator-org.yml
+        - ../vars/manufacturer-org.yml
+        - ../vars/insurer-org.yml
         - ../vars/ordering-org.yml
       tasks:
         - name: Check to see if the channel already exists
