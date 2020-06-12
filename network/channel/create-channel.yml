@@ -45,6 +45,8 @@
             path: ../output/config_update.bin
             organizations:
               - "{{ regulator_name }}"
+              - "{{ manufacturer_name }}"
+              - "{{ insurer_name }}"
             policies:
               Admins: "{{ lookup('template', 'admins-policy.json.j2') }}"
               Readers: "{{ lookup('template', 'readers-policy.json.j2') }}"
