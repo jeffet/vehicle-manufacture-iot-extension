@@ -72,7 +72,7 @@
             msp_id: "{{ manufacturer_msp_id }}"
             name: "{{ channel_name }}"
             path: ../output/config_update.bin
-          when: ../output/compute_update.path
+          when: compute_update.path
     
         - name: Apply the channel configuration update
           ibm.blockchain_platform.channel_config:
