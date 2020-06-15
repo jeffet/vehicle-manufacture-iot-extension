@@ -1,0 +1,43 @@
+{
+    "name": "Arium Gateway",
+    "version": "1.0",
+    "client": {
+        "organization": "Arium",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": 300
+                },
+                "orderer": 300
+            }
+        }
+    },
+    "organizations": {
+        "Arium": {
+            "mspid": "AriumMSP",
+            "peers": [
+                "Arium Peer"
+            ],
+            "certificateAuthorities": [
+                "Arium CA"
+            ]
+        }
+    },
+    "certificateAuthorities": {
+        "Arium CA": {
+            "url": "https://ibp2-ariumca-ca.192.168.229.142.nip.io:443",
+            "caName": "ca",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----\nMIICfDCCAiKgAwIBAgIRAIaY9tgMT16dtiHxXqgOKDUwCgYIKoZIzj0EAwIwgYsx\nCzAJBgNVBAYTAlVTMRcwFQYDVQQIEw5Ob3J0aCBDYXJvbGluYTEPMA0GA1UEBxMG\nRHVyaGFtMQwwCgYDVQQKEwNJQk0xEzARBgNVBAsTCkJsb2NrY2hhaW4xLzAtBgNV\nBAMTJmlicDItYXJpdW1jYS1jYS4xOTIuMTY4LjIyOS4xNDIubmlwLmlvMB4XDTIw\nMDYxNTE0MjYzM1oXDTMwMDYxMzE0MjYzM1owgYsxCzAJBgNVBAYTAlVTMRcwFQYD\nVQQIEw5Ob3J0aCBDYXJvbGluYTEPMA0GA1UEBxMGRHVyaGFtMQwwCgYDVQQKEwNJ\nQk0xEzARBgNVBAsTCkJsb2NrY2hhaW4xLzAtBgNVBAMTJmlicDItYXJpdW1jYS1j\nYS4xOTIuMTY4LjIyOS4xNDIubmlwLmlvMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcD\nQgAENbfvFswvdA5KUuQKNBI5JPnY8uet6SxO1PPLjY5dFPtMyq71SNAi9W/svzh2\nBpkHpuXcIBPb7y4auH4D7vmijaNlMGMwYQYDVR0RBFowWIImaWJwMi1hcml1bWNh\nLWNhLjE5Mi4xNjguMjI5LjE0Mi5uaXAuaW+CLmlicDItYXJpdW1jYS1vcGVyYXRp\nb25zLjE5Mi4xNjguMjI5LjE0Mi5uaXAuaW8wCgYIKoZIzj0EAwIDSAAwRQIhAPGY\n4z7wU2vesKwppDovyTkfOSAkh7LFdLJ9/0YyNWnzAiAWcwevf4hUdy1M3traMjE9\nfvOVV0pGdPRxrodBldXIKQ==\n-----END CERTIFICATE-----\n"
+            }
+        }
+    },
+    "peers": {
+        "Arium Peer": {
+            "url": "grpcs://ibp2-ariumpeer-peer.192.168.229.142.nip.io:443",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----\nMIIB/TCCAaSgAwIBAgIUe9mxN4KiNQpg+dy5uD2FBDAQtjUwCgYIKoZIzj0EAwIw\nXTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQK\nEwtIeXBlcmxlZGdlcjEPMA0GA1UECxMGRmFicmljMQ4wDAYDVQQDEwV0bHNjYTAe\nFw0yMDA2MTUxNDIyMDBaFw0zNTA2MTIxNDIyMDBaMF0xCzAJBgNVBAYTAlVTMRcw\nFQYDVQQIEw5Ob3J0aCBDYXJvbGluYTEUMBIGA1UEChMLSHlwZXJsZWRnZXIxDzAN\nBgNVBAsTBkZhYnJpYzEOMAwGA1UEAxMFdGxzY2EwWTATBgcqhkjOPQIBBggqhkjO\nPQMBBwNCAAQJ6ULIZB8HPOOJPQYa3VrkfzSRMUPNqrTB5R8a/QiR07+uSMDZc2EG\nZrhI9nYAvZ1L9HPwkmaWhikpsCbDH4hVo0IwQDAOBgNVHQ8BAf8EBAMCAQYwDwYD\nVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU4YtluDX35MT+FTwVAVsCc1xUSnwwCgYI\nKoZIzj0EAwIDRwAwRAIgCWk9Fe/yxSzY0jTeIAUnkyFo07CLU2hpYh522X42VX0C\nIBGL6zyGPdqWqqe2FrOw89jvuoindYquMkifleR+N6t8\n-----END CERTIFICATE-----\n"
+            }
+        }
+    }
+}

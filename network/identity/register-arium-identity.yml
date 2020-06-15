@@ -1,0 +1,42 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+  - name: Register application
+    hosts: localhost
+    vars_files:
+      - ../vars/common.yml
+      - ../vars/manufacturer-org.yml
+    tasks:
+      - name: Register a new identity
+        ibm.blockchain_platform.registered_identity:
+          api_endpoint: "{{ api_endpoint }}"
+          api_authtype: "{{ api_authtype }}"
+          api_key: "{{ api_key }}"
+          api_secret: "{{ api_secret | default(omit) }}"
+          api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
+          certificate_authority: "{{ manufacturer_ca_name }}"
+          registrar: "../output/{{manufacturer_name}}/CA Admin.json"
+          enrollment_id: "{{ enrollment_id }}"
+          enrollment_secret: "{{ enrollment_secret }}"
+          max_enrollments: "{{ max_enrollments }}"
+          type: "{{ enrollment_type }}"
+          attributes:
+            - name: "{{ smart_contract_name }}.admin"
+              value: "true"
+            - name: "hf.Registrar.Attributes"
+              value: "vehicle_manufacture.*"
+
+      - name: Create a connection profile
+        ibm.blockchain_platform.connection_profile:
+          api_endpoint: "{{ api_endpoint }}"
+          api_authtype: "{{ api_authtype }}"
+          api_key: "{{ api_key }}"
+          api_secret: "{{ api_secret | default(omit) }}"
+          api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
+          name: "{{ enrollment_id }} Gateway"
+          path: "../output/{{ manufacturer_name }}/Connection Profiles/{{ enrollment_id }} Gateway.json"
+          organization: "{{ manufacturer_name }}"
+          certificate_authority: "{{ manufacturer_ca_name }}"
+          peers:
+            - "{{ manufacturer_peer_name }}"
