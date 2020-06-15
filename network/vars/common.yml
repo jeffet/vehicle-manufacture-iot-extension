@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 ---
-    api_endpoint: https://ibp2-ibpconsole-console.192.168.229.143.nip.io
+    api_endpoint: https://ibp2-ibpconsole-console.192.168.229.142.nip.io
     api_authtype: basic
     api_key: ibp-admin@uk.ibm.com
     api_secret: 12345678
     channel_name: "vehiclemanufacture"
-    smart_contract_name: "vehicle-manufacture-chaincode"
-    smart_contract_version: "1.1.0"
-    smart_contract_package: "../chaincode/vehicle-manufacture-chaincode@1.1.0.tar.gz"
+    smart_contract_name: "vehicle-manufacture-contract"
+    smart_contract_version: "1.1.1"
+    smart_contract_package: "../chaincode/vehicle-manufacture-contract@1.1.1.cds"
     wait_timeout: 600
