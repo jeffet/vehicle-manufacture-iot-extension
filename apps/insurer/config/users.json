@@ -12,13 +12,11 @@
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "PrinceInsurance",
-                "ecert": true
+                "value": "PrinceInsurance"
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "insurer",
-                "ecert": true
+                "value": "insurer"
             }
         ]
     },
@@ -27,33 +25,27 @@
         "attrs": [
             {
                 "name": "vehicle_manufacture.role.vehicle.read",
-                "value": "y",
-                "ecert": true
+                "value": "y"
             },
             {
                 "name": "vehicle_manufacture.role.policy.read",
-                "value": "y",
-                "ecert": true
+                "value": "y"
             },
             {
                 "name": "vehicle_manufacture.role.policy.create",
-                "value": "y",
-                "ecert": true
+                "value": "y"
             },
             {
                 "name": "vehicle_manufacture.role.usage_event.read",
-                "value": "y",
-                "ecert": true
+                "value": "y"
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "PrinceInsurance",
-                "ecert": true
+                "value": "PrinceInsurance"
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "insurer",
-                "ecert": true
+                "value": "insurer"
             }
         ]
     },
@@ -62,28 +54,23 @@
         "attrs": [
             {
                 "name": "vehicle_manufacture.role.vehicle.read",
-                "value": "y",
-                "ecert": true
+                "value": "y"
             },
             {
                 "name": "vehicle_manufacture.role.policy.read",
-                "value": "y",
-                "ecert": true
+                "value": "y"
             },
             {
                 "name": "vehicle_manufacture.role.usage_event.read",
-                "value": "y",
-                "ecert": true
+                "value": "y"
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "PrinceInsurance",
-                "ecert": true
+                "value": "PrinceInsurance"
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "insurer",
-                "ecert": true
+                "value": "insurer"
             }
         ]
     }
