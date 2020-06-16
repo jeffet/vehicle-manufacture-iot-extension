@@ -43,23 +43,17 @@ mkdir -p $LOG_PATH
 exec > >(tee -i $LOG_PATH/start.log)
 exec 2>&1
 
+mkdir $BASEDIR/tmp
 
 APPS_DIR=$BASEDIR/../apps
 
 REQUIRED_INSTALL_AND_BUILDS=("$BASEDIR/../contract" "$BASEDIR/cli_tools")
-REQUIRED_APPS_WITH_CONNECTIONS=("$APPS_DIR/manufacturer" "$APPS_DIR/insurer" "$APPS_DIR/regulator")
 
 MISSING=false
 for REQUIRED in "${REQUIRED_INSTALL_AND_BUILDS[@]}"; do
     if [ ! -d "$REQUIRED/node_modules" ]; then
         MISSING=true
     elif [ ! -d "$REQUIRED/dist" ]; then
-        MISSING=true
-    fi
-done
-
-for REQUIRED in "${REQUIRED_APPS_WITH_CONNECTIONS[@]}"; do
-    if [ ! -f "$REQUIRED/vehiclemanufacture_fabric/connection.json" ]; then
         MISSING=true
     fi
 done
@@ -72,135 +66,76 @@ if [ "$MISSING" = true ]; then
     $BASEDIR/install.sh
 fi
 
-NETWORK_DOCKER_COMPOSE_DIR=$BASEDIR/network/docker-compose
 APPS_DOCKER_COMPOSE_DIR=$BASEDIR/apps/docker-compose
-CRYPTO_CONFIG=$BASEDIR/network/crypto-material/crypto-config
 
-echo "###########################"
-echo "# SET ENV VARS FOR DOCKER #"
-echo "###########################"
-set_docker_env $NETWORK_DOCKER_COMPOSE_DIR $APPS_DOCKER_COMPOSE_DIR
-
-echo "###################"
-echo "# GENERATE CRYPTO #"
-echo "###################"
-docker-compose -f $NETWORK_DOCKER_COMPOSE_DIR/docker-compose-cli.yaml up -d
-
-docker exec cli cryptogen generate --config=/etc/hyperledger/config/crypto-config.yaml --output /etc/hyperledger/config/crypto-config
-docker exec cli configtxgen -profile SampleMultiNodeEtcdRaft -outputBlock /etc/hyperledger/config/genesis.block
-docker exec cli configtxgen -profile ThreeOrgsChannel -outputCreateChannelTx /etc/hyperledger/config/channel.tx -channelID vehiclemanufacture
-docker exec cli cp /etc/hyperledger/fabric/core.yaml /etc/hyperledger/config
-docker exec cli sh /etc/hyperledger/config/rename_sk.sh
-
-docker-compose -f $NETWORK_DOCKER_COMPOSE_DIR/docker-compose-cli.yaml down --volumes
+echo "####################"
+echo "# BUILDING NETWORK #"
+echo "####################"
+sh "$BASEDIR/scripts/network/build.sh"
 
 echo "#################"
-echo "# SETUP NETWORK #"
+echo "# SETUP CHANNEL #"
 echo "#################"
-docker-compose -f $NETWORK_DOCKER_COMPOSE_DIR/docker-compose.yaml -p node up -d
+sh "$BASEDIR/scripts/network/setup-channel.sh"
 
-echo "################"
-echo "# CHANNEL INIT #"
-echo "################"
-docker exec arium_cli peer channel create -o orderer.example.com:7050 -c vehiclemanufacture -f /etc/hyperledger/configtx/channel.tx \
-    --outputBlock /etc/hyperledger/configtx/vehiclemanufacture.block \
-    --tls true \
-    --cafile /etc/hyperledger/config/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
-wait_until 'docker exec arium_cli bash -c "[ -f /etc/hyperledger/configtx/vehiclemanufacture.block ] && exit 0 || exit 1"' 3 5
+echo "#####################################"
+echo "# INSTALL AND INSTANTIATE CHAINCODE #"
+echo "#####################################"
+sh "$BASEDIR/scripts/network/instantiate-chaincode.sh"
 
-wait_until 'docker exec arium_cli peer channel join -b /etc/hyperledger/configtx/vehiclemanufacture.block --tls true --cafile /etc/hyperledger/config/crypto/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem' 3 5
-wait_until 'docker exec vda_cli peer channel join -b /etc/hyperledger/configtx/vehiclemanufacture.block --tls true --cafile /etc/hyperledger/config/crypto/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem' 3 5
-wait_until 'docker exec princeinsurance_cli peer channel join -b /etc/hyperledger/configtx/vehiclemanufacture.block --tls true --cafile /etc/hyperledger/config/crypto/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem' 3 5
+echo "#######################"
+echo "# REGISTER IDENTITIES #"
+echo "#######################"
+sh "$BASEDIR/scripts/network/instantiate-chaincode.sh"
 
-echo "#####################"
-echo "# CHAINCODE INSTALL #"
-echo "#####################"
-docker exec arium_cli peer chaincode install -l node -n vehicle-manufacture-chaincode -v 0 -p /etc/hyperledger/contract
-docker exec vda_cli peer chaincode install -l node -n vehicle-manufacture-chaincode -v 0 -p /etc/hyperledger/contract
-docker exec princeinsurance_cli  peer chaincode install -l node -n vehicle-manufacture-chaincode -v 0 -p /etc/hyperledger/contract
-
-echo "#########################"
-echo "# CHAINCODE INSTANTIATE #"
-echo "#########################"
-docker exec arium_cli peer chaincode instantiate -o orderer.example.com:7050 \
--l node -C vehiclemanufacture -n vehicle-manufacture-chaincode -v 0 \
---tls true \
---cafile /etc/hyperledger/config/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem \
--c '{"Args":[]}' -P 'AND ("AriumMSP.member", "VDAMSP.member", "PrinceInsuranceMSP.member")'
-
-wait_until 'docker ps -a | grep dev-peer0.arium > /dev/null' 3 10
-
-CHAINCODE_QUERY="peer chaincode query -o orderer.example.com:7050 \
--C vehiclemanufacture -n vehicle-manufacture-chaincode \
---tls true \
---cafile /etc/hyperledger/config/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem \
--c '{\"Args\":[\"org.hyperledger.fabric:GetMetadata\"]}' > /dev/null"
-
-PRINCE_QUERY="docker exec princeinsurance_cli $CHAINCODE_QUERY"
-VDA_QUERY="docker exec vda_cli $CHAINCODE_QUERY"
-
-wait_until "$PRINCE_QUERY" 3 10
-
-wait_until "$VDA_QUERY" 3 10
-
-echo "####################"
-echo "# ENROLLING ADMINS #"
-echo "####################"
-ARIUM_ADMIN_CERT=$BASEDIR/tmp/arium_cert.pem
-ARIUM_ADMIN_KEY=$BASEDIR/tmp/arium_key.pem
-
-VDA_ADMIN_CERT=$BASEDIR/tmp/vda_cert.pem
-VDA_ADMIN_KEY=$BASEDIR/tmp/vda_key.pem
-
-PRINCE_ADMIN_CERT=$BASEDIR/tmp/prince_cert.pem
-PRINCE_ADMIN_KEY=$BASEDIR/tmp/prince_key.pem
-
-mkdir -p $BASEDIR/tmp
-
-FABRIC_CA_CLIENT_HOME=/root/fabric-ca/clients/admin
-
-docker exec tlsca.arium.com bash -c "fabric-ca-client enroll -u https://admin:adminpw@tlsca.arium.com:7054 --tls.certfiles /etc/hyperledger/fabric-ca-server-tlsca/tlsca.arium.com-cert.pem"
-docker exec tlsca.arium.com bash -c "cd $FABRIC_CA_CLIENT_HOME/msp/keystore; find ./ -name '*_sk' -exec mv {} key.pem \;"
-docker cp tlsca.arium.com:$FABRIC_CA_CLIENT_HOME/msp/signcerts/cert.pem $BASEDIR/tmp
-docker cp tlsca.arium.com:$FABRIC_CA_CLIENT_HOME/msp/keystore/key.pem $BASEDIR/tmp
-
-mv $BASEDIR/tmp/cert.pem $ARIUM_ADMIN_CERT
-mv $BASEDIR/tmp/key.pem $ARIUM_ADMIN_KEY
-
-docker exec tlsca.vda.com bash -c "fabric-ca-client enroll -u https://admin:adminpw@tlsca.vda.com:7054 --tls.certfiles /etc/hyperledger/fabric-ca-server-tlsca/tlsca.vda.com-cert.pem"
-docker exec tlsca.vda.com bash -c "cd $FABRIC_CA_CLIENT_HOME/msp/keystore; find ./ -name '*_sk' -exec mv {} key.pem \;"
-docker cp tlsca.vda.com:$FABRIC_CA_CLIENT_HOME/msp/signcerts/cert.pem $BASEDIR/tmp
-docker cp tlsca.vda.com:$FABRIC_CA_CLIENT_HOME/msp/keystore/key.pem $BASEDIR/tmp
-
-mv $BASEDIR/tmp/cert.pem $VDA_ADMIN_CERT
-mv $BASEDIR/tmp/key.pem $VDA_ADMIN_KEY
-
-docker exec tlsca.prince-insurance.com bash -c "fabric-ca-client enroll -u https://admin:adminpw@tlsca.prince-insurance.com:7054 --tls.certfiles /etc/hyperledger/fabric-ca-server-tlsca/tlsca.prince-insurance.com-cert.pem"
-docker exec tlsca.prince-insurance.com bash -c "cd $FABRIC_CA_CLIENT_HOME/msp/keystore; find ./ -name '*_sk' -exec mv {} key.pem \;"
-docker cp tlsca.prince-insurance.com:$FABRIC_CA_CLIENT_HOME/msp/signcerts/cert.pem $BASEDIR/tmp
-docker cp tlsca.prince-insurance.com:$FABRIC_CA_CLIENT_HOME/msp/keystore/key.pem $BASEDIR/tmp
-
-mv $BASEDIR/tmp/cert.pem $PRINCE_ADMIN_CERT
-mv $BASEDIR/tmp/key.pem $PRINCE_ADMIN_KEY
-
-echo "####################"
-echo "# IMPORTING ADMINS #"
-echo "####################"
+echo "############################"
+echo "# COPY CONNECTION PROFILES #"
+echo "############################"
 FABRIC_CONFIG_NAME=vehiclemanufacture_fabric
 
 ARIUM_LOCAL_FABRIC=$APPS_DIR/manufacturer/$FABRIC_CONFIG_NAME
 VDA_LOCAL_FABRIC=$APPS_DIR/regulator/$FABRIC_CONFIG_NAME
 PRINCE_LOCAL_FABRIC=$APPS_DIR/insurer/$FABRIC_CONFIG_NAME
 
+OUTPUT_FOLDER=$BASEDIR/network/output
+
+cp "$OUTPUT_FOLDER/Arium/Connection Profiles/Gateway.json" "$ARIUM_LOCAL_FABRIC/connection.json"
+cp "$OUTPUT_FOLDER/PrinceInsurance/Connection Profiles/Gateway.json" "$PRINCE_LOCAL_FABRIC/connection.json"
+cp "$OUTPUT_FOLDER/VDA/Connection Profiles/Gateway.json" "$VDA_LOCAL_FABRIC/connection.json"
+
+echo "####################"
+echo "# IMPORTING USERS #"
+echo "####################"
 CLI_DIR=$BASEDIR/cli_tools
 
-ARIUM_USERS=$APPS_DIR/manufacturer/config/users.json
-VDA_USERS=$APPS_DIR/regulator/config/users.json
-PRINCE_USERS=$APPS_DIR/insurer/config/users.json
+PARTIES=("Arium" "PrinceInsurance", "VDA")
 
-node $CLI_DIR/dist/index.js import -w $ARIUM_LOCAL_FABRIC/wallet -m AriumMSP -n admin -c $ARIUM_ADMIN_CERT -k $ARIUM_ADMIN_KEY -o Arium
-node $CLI_DIR/dist/index.js import -w $VDA_LOCAL_FABRIC/wallet -m VDAMSP -n admin -c $VDA_ADMIN_CERT -k $VDA_ADMIN_KEY -o VDA
-node $CLI_DIR/dist/index.js import -w $PRINCE_LOCAL_FABRIC/wallet -m PrinceInsuranceMSP -n admin -c $PRINCE_ADMIN_CERT -k $PRINCE_ADMIN_KEY -o PrinceInsurance
+for PARTY in ${PARTIES} ; do
+    LOCAL_FABRIC_VAR="${PARTY}_LOCAL_FABRIC"
+    ADMIN_CERT=$BASEDIR/tmp/${PARTY}_admin.pem
+    ADMIN_KEY=$BASEDIR/tmp/${PARTY}_admin.key
+
+    jq -r '.cert' $OUTPUT_FOLDER/$PARTY/Admin.json | base64 --decode > $ADMIN_CERT
+    jq -r '.private_key' $OUTPUT_FOLDER/$PARTY/Admin.json | base64 --decode > $ADMIN_KEY
+
+    node $CLI_DIR/dist/index.js import -w ${!LOCAL_FABRIC_VAR}/wallet -m ${PARTY}MSP -n admin -c $ADMIN_CERT -k $ADMIN_KEY -o $PARTY
+
+    find $OUTPUT_FOLDER/$PARTY/Identities -name '*.json' -print0 | while IFS= read -r -d '' FILE; do
+        IDENTITY=$(jq -r '.name' $FILE)
+        CERT=$BASEDIR/tmp/${PARTY}_${IDENTITY}.pem
+        KEY=$BASEDIR/tmp/${PARTY}_${IDENTITY}.key
+
+        jq -r '.cert' $FILE | base64 --decode > $CERT
+        jq -r '.private_key' $FILE | base64 --decode > $KEY
+
+        node $CLI_DIR/dist/index.js import -w ${!LOCAL_FABRIC_VAR}/wallet -m ${PARTY}MSP -n $IDENTITY -c $CERT -k $KEY -o $PARTY
+    done
+done
+
+echo "###########################"
+echo "# SET ENV VARS FOR DOCKER #"
+echo "###########################"
+set_docker_env $APPS_DOCKER_COMPOSE_DIR
 
 echo "################"
 echo "# STARTUP APPS #"
@@ -223,30 +158,6 @@ for PORT in $CAR_BUILDER_PORT $ARIUM_PORT $VDA_PORT $PRINCE_PORT
 do
     echo "WAITING FOR REST SERVER ON PORT $PORT"
     wait_until "curl --output /dev/null --silent --head --fail http://localhost:$PORT" 30 2
-done
-
-echo "##################################"
-echo "# ENROLLING EVERYONE FOR NETWORK #"
-echo "##################################"
-
-VDA_REGISTER="$VDA_PORT|regulator|$VDA_USERS"
-PRINCE_REGISTER="$PRINCE_PORT|insurer|$PRINCE_USERS"
-ARIUM_REGISTER="$ARIUM_PORT|manufacturer|$ARIUM_USERS"
-
-for REGISTRATION in $ARIUM_REGISTER $PRINCE_REGISTER $VDA_REGISTER
-do
-    PORT="$(cut -d'|' -f1 <<<"$REGISTRATION")"
-    TYPE="$(cut -d'|' -f2 <<<"$REGISTRATION")"
-    USER_LIST="$(cut -d'|' -f3 <<<"$REGISTRATION")"
-
-    echo "=============================="
-    echo "= REGISTERING FOR TYPE $TYPE ="
-    echo "=============================="
-
-    jq -c '.[]' $USER_LIST | while read row; do
-        echo "ENROLLING $(echo $row | jq -r '.name' )"
-        wait_until "echo '$row' | curl -s -H \"Content-Type: application/json\" -X POST -u admin:adminpw -d @- http://localhost:$PORT/api/users/enroll" 5 3
-    done
 done
 
 echo "###################################"

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 ---
-  - name: Register application
+  - name: Create regulator connection profile
     hosts: localhost
     vars_files:
       - ../vars/common.yml

@@ -83,5 +83,5 @@ vm_demo_logs_*
 
 package-lock.json
 
-network/output/*
-!network/output/.gitkeep
+scripts/network/output/*
+!scripts/network/output/.gitkeep
