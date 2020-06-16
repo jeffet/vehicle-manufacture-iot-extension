@@ -1,0 +1,23 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+  - name: Enroll regulator identity
+    hosts: localhost
+    vars_files:
+      - ../vars/common.yml
+      - ../vars/regulator-org.yml
+    tasks:
+      - name: Enroll a regulator identity
+        ibm.blockchain_platform.enrolled_identity:
+          state: present
+          name: "{{ enrollment_id }}"
+          api_endpoint: "{{ api_endpoint }}"
+          api_authtype: "{{ api_authtype }}"
+          api_key: "{{ api_key }}"
+          api_secret: "{{ api_secret | default(omit) }}"
+          api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
+          certificate_authority: "{{ regulator_ca_name }}"
+          enrollment_id: "{{ enrollment_id }}"
+          enrollment_secret: "{{ enrollment_secret }}"
+          path: ../output/{{ regulator_name }}/Identities/{{ enrollment_id }}.json

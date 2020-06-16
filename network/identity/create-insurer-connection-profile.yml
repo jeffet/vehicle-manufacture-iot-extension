@@ -1,0 +1,23 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+  - name: Create insurer connection profile
+    hosts: localhost
+    vars_files:
+      - ../vars/common.yml
+      - ../vars/insurer-org.yml
+    tasks:
+      - name: Create a connection profile
+        ibm.blockchain_platform.connection_profile:
+          api_endpoint: "{{ api_endpoint }}"
+          api_authtype: "{{ api_authtype }}"
+          api_key: "{{ api_key }}"
+          api_secret: "{{ api_secret | default(omit) }}"
+          api_token_endpoint: "{{ api_token_endpoint | default(omit) }}"
+          name: "{{ insurer_name }} Gateway"
+          path: "../output/{{ insurer_name }}/Connection Profiles/Gateway.json"
+          organization: "{{ insurer_name }}"
+          certificate_authority: "{{ insurer_ca_name }}"
+          peers:
+            - "{{ insurer_peer_name }}"
