@@ -71,22 +71,22 @@ APPS_DOCKER_COMPOSE_DIR=$BASEDIR/apps/docker-compose
 echo "####################"
 echo "# BUILDING NETWORK #"
 echo "####################"
-sh "$BASEDIR/network/build.sh"
+"$BASEDIR/network/build.sh"
 
 echo "#################"
 echo "# SETUP CHANNEL #"
 echo "#################"
-sh "$BASEDIR/network/setup-channel.sh"
+"$BASEDIR/network/setup-channel.sh"
 
 echo "#####################################"
 echo "# INSTALL AND INSTANTIATE CHAINCODE #"
 echo "#####################################"
-sh "$BASEDIR/network/instantiate-chaincode.sh"
+"$BASEDIR/network/instantiate-chaincode.sh"
 
 echo "#######################"
 echo "# REGISTER IDENTITIES #"
 echo "#######################"
-sh "$BASEDIR/network/instantiate-chaincode.sh"
+"$BASEDIR/network/instantiate-chaincode.sh
 
 echo "############################"
 echo "# COPY CONNECTION PROFILES #"
@@ -111,7 +111,7 @@ CLI_DIR=$BASEDIR/cli_tools
 PARTIES=("Arium" "PrinceInsurance", "VDA")
 
 for PARTY in ${PARTIES} ; do
-    LOCAL_FABRIC_VAR="${PARTY}_LOCAL_FABRIC"
+    LOCAL_FABRIC_VAR=$(echo "${PARTY}_LOCAL_FABRIC" | tr a-z A-Z)
     ADMIN_CERT=$BASEDIR/tmp/${PARTY}_admin.pem
     ADMIN_KEY=$BASEDIR/tmp/${PARTY}_admin.key
 
