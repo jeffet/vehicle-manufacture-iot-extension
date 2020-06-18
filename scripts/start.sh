@@ -86,7 +86,7 @@ echo "#####################################"
 echo "#######################"
 echo "# REGISTER IDENTITIES #"
 echo "#######################"
-"$BASEDIR/network/instantiate-chaincode.sh
+"$BASEDIR/network/register-identities.sh"
 
 echo "############################"
 echo "# COPY CONNECTION PROFILES #"
