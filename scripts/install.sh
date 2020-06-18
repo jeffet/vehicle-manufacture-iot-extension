@@ -20,8 +20,6 @@ source $BASEDIR/utils.sh
 
 BASEDIR=$(get_full_path "$BASEDIR")
 
-NETWORK_DOCKER_COMPOSE_DIR=$BASEDIR/network/docker-compose
-
 #################
 # SETUP LOGGING #
 #################
@@ -30,27 +28,6 @@ mkdir -p $LOG_PATH
 
 exec > >(tee -i $LOG_PATH/install.log)
 exec 2>&1
-
-echo "###########################"
-echo "# SET ENV VARS FOR DOCKER #"
-echo "###########################"
-set_docker_env $NETWORK_DOCKER_COMPOSE_DIR
-
-bash $BASEDIR/generate-config.sh
-
-echo "#####################"
-echo "# CHAINCODE INSTALL #"
-echo "#####################"
-
-docker-compose -f $NETWORK_DOCKER_COMPOSE_DIR/docker-compose-cli.yaml up -d
-
-set +e
-docker exec cli bash -c "apk add nodejs nodejs-npm python make g++"
-set -e
-
-docker exec cli bash -c 'cd /etc/hyperledger/contract; npm install; npm run build'
-
-docker-compose -f $NETWORK_DOCKER_COMPOSE_DIR/docker-compose-cli.yaml down --volumes
 
 echo "###################"
 echo "# BUILD CLI_TOOLS #"

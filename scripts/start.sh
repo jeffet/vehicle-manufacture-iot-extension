@@ -43,11 +43,11 @@ mkdir -p $LOG_PATH
 exec > >(tee -i $LOG_PATH/start.log)
 exec 2>&1
 
-mkdir $BASEDIR/tmp
+mkdir -p $BASEDIR/tmp
 
 APPS_DIR=$BASEDIR/../apps
 
-REQUIRED_INSTALL_AND_BUILDS=("$BASEDIR/../contract" "$BASEDIR/cli_tools")
+REQUIRED_INSTALL_AND_BUILDS=("$BASEDIR/cli_tools")
 
 MISSING=false
 for REQUIRED in "${REQUIRED_INSTALL_AND_BUILDS[@]}"; do
@@ -71,22 +71,22 @@ APPS_DOCKER_COMPOSE_DIR=$BASEDIR/apps/docker-compose
 echo "####################"
 echo "# BUILDING NETWORK #"
 echo "####################"
-sh "$BASEDIR/scripts/network/build.sh"
+sh "$BASEDIR/network/build.sh"
 
 echo "#################"
 echo "# SETUP CHANNEL #"
 echo "#################"
-sh "$BASEDIR/scripts/network/setup-channel.sh"
+sh "$BASEDIR/network/setup-channel.sh"
 
 echo "#####################################"
 echo "# INSTALL AND INSTANTIATE CHAINCODE #"
 echo "#####################################"
-sh "$BASEDIR/scripts/network/instantiate-chaincode.sh"
+sh "$BASEDIR/network/instantiate-chaincode.sh"
 
 echo "#######################"
 echo "# REGISTER IDENTITIES #"
 echo "#######################"
-sh "$BASEDIR/scripts/network/instantiate-chaincode.sh"
+sh "$BASEDIR/network/instantiate-chaincode.sh"
 
 echo "############################"
 echo "# COPY CONNECTION PROFILES #"
@@ -132,75 +132,75 @@ for PARTY in ${PARTIES} ; do
     done
 done
 
-echo "###########################"
-echo "# SET ENV VARS FOR DOCKER #"
-echo "###########################"
-set_docker_env $APPS_DOCKER_COMPOSE_DIR
+# echo "###########################"
+# echo "# SET ENV VARS FOR DOCKER #"
+# echo "###########################"
+# set_docker_env $APPS_DOCKER_COMPOSE_DIR
 
-echo "################"
-echo "# STARTUP APPS #"
-echo "################"
+# echo "################"
+# echo "# STARTUP APPS #"
+# echo "################"
 
-INSURER_DIR=$APPS_DIR/insurer
-CAR_BUILDER_DIR=$APPS_DIR/car_builder
-MANUFACTURER_DIR=$APPS_DIR/manufacturer
-REGULATOR_DIR=$APPS_DIR/regulator
+# INSURER_DIR=$APPS_DIR/insurer
+# CAR_BUILDER_DIR=$APPS_DIR/car_builder
+# MANUFACTURER_DIR=$APPS_DIR/manufacturer
+# REGULATOR_DIR=$APPS_DIR/regulator
 
-docker-compose -f $APPS_DOCKER_COMPOSE_DIR/docker-compose.yaml -p node up -d
+# docker-compose -f $APPS_DOCKER_COMPOSE_DIR/docker-compose.yaml -p node up -d
 
-CAR_BUILDER_PORT=6001
-ARIUM_PORT=6002
-VDA_PORT=6003
-PRINCE_PORT=6004
+# CAR_BUILDER_PORT=6001
+# ARIUM_PORT=6002
+# VDA_PORT=6003
+# PRINCE_PORT=6004
 
-cd $BASEDIR
-for PORT in $CAR_BUILDER_PORT $ARIUM_PORT $VDA_PORT $PRINCE_PORT
-do
-    echo "WAITING FOR REST SERVER ON PORT $PORT"
-    wait_until "curl --output /dev/null --silent --head --fail http://localhost:$PORT" 30 2
-done
+# cd $BASEDIR
+# for PORT in $CAR_BUILDER_PORT $ARIUM_PORT $VDA_PORT $PRINCE_PORT
+# do
+#     echo "WAITING FOR REST SERVER ON PORT $PORT"
+#     wait_until "curl --output /dev/null --silent --head --fail http://localhost:$PORT" 30 2
+# done
 
-echo "###################################"
-echo "# SETTING MANUFACTURER PROPERTIES #"
-echo "###################################"
+# echo "###################################"
+# echo "# SETTING MANUFACTURER PROPERTIES #"
+# echo "###################################"
 
-docker exec arium_app node server/dist/setup.js
+# docker exec arium_app node server/dist/setup.js
 
-echo "#####################"
-echo "# STARTING BROWSERS #"
-echo "#####################"
+# echo "#####################"
+# echo "# STARTING BROWSERS #"
+# echo "#####################"
 
-URLS="http://localhost:$CAR_BUILDER_PORT http://localhost:$ARIUM_PORT http://localhost:$VDA_PORT http://localhost:$PRINCE_PORT http://localhost:$ARIUM_PORT/node-red"
-case "$(uname)" in
-    "Darwin")
-        open ${URLS}
-        ;;
-    "Linux")
-        if [ -n "$BROWSER" ] ; then
-            $BROWSER ${URLS}
-        elif which x-www-browser > /dev/null ; then
-            nohup x-www-browser ${URLS} < /dev/null > /dev/null 2>&1 &
-        elif which xdg-open > /dev/null ; then
-            for URL in ${URLS} ; do
-                xdg-open ${URL}
-            done
-        elif which gnome-open > /dev/null ; then
-            gnome-open ${URLS}
-        else
-            echo "Could not detect web browser to use - please launch the demo in your chosen browser. See the README.md for which hosts/ports to open"
-        fi
-        ;;
-    *)
-        echo "Demo not launched. OS currently not supported"
-        ;;
-esac
+# URLS="http://localhost:$CAR_BUILDER_PORT http://localhost:$ARIUM_PORT http://localhost:$VDA_PORT http://localhost:$PRINCE_PORT http://localhost:$ARIUM_PORT/node-red"
+# case "$(uname)" in
+#     "Darwin")
+#         open ${URLS}
+#         ;;
+#     "Linux")
+#         if [ -n "$BROWSER" ] ; then
+#             $BROWSER ${URLS}
+#         elif which x-www-browser > /dev/null ; then
+#             nohup x-www-browser ${URLS} < /dev/null > /dev/null 2>&1 &
+#         elif which xdg-open > /dev/null ; then
+#             for URL in ${URLS} ; do
+#                 xdg-open ${URL}
+#             done
+#         elif which gnome-open > /dev/null ; then
+#             gnome-open ${URLS}
+#         else
+#             echo "Could not detect web browser to use - please launch the demo in your chosen browser. See the README.md for which hosts/ports to open"
+#         fi
+#         ;;
+#     *)
+#         echo "Demo not launched. OS currently not supported"
+#         ;;
+# esac
 
-echo "#############################"
-echo "# CLEAN ENV VARS FOR DOCKER #"
-echo "#############################"
-unset $(cat $NETWORK_DOCKER_COMPOSE_DIR/.env | sed -E 's/(.*)=.*/\1/' | xargs)
-unset $(cat $APPS_DOCKER_COMPOSE_DIR/.env | sed -E 's/(.*)=.*/\1/' | xargs)
+# echo "#############################"
+# echo "# CLEAN ENV VARS FOR DOCKER #"
+# echo "#############################"
+# unset $(cat $NETWORK_DOCKER_COMPOSE_DIR/.env | sed -E 's/(.*)=.*/\1/' | xargs)
+# unset $(cat $APPS_DOCKER_COMPOSE_DIR/.env | sed -E 's/(.*)=.*/\1/' | xargs)
 
-echo "####################"
-echo "# STARTUP COMPLETE #"
-echo "####################"
+# echo "####################"
+# echo "# STARTUP COMPLETE #"
+# echo "####################"
