@@ -16,8 +16,6 @@ set -e
 
 cd "$(dirname "$0")"
 
-# set -x
-
 mkdir -p "output/Arium/Connection Profiles"
 mkdir -p "output/Arium/Identities"
 mkdir -p "output/PrinceInsurance/Connection Profiles"
@@ -25,8 +23,10 @@ mkdir -p "output/PrinceInsurance/Identities"
 mkdir -p "output/VDA/Connection Profiles"
 mkdir -p "output/VDA/Identities"
 
+set -x
+
 register_identities() {
-    for i in $(jq -c '.[]' ../apps/${1}/config/users.json); do
+    for i in $(jq -c '.[]' ../../apps/${1}/config/users.json); do
         NAME=$(jq -r '.name' <<< "$i")
         ATTRIBUTES=$(jq -c '.attrs' <<< "$i")
 
