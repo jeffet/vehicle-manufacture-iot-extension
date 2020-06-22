@@ -108,7 +108,7 @@ echo "# IMPORTING USERS #"
 echo "####################"
 CLI_DIR=$BASEDIR/cli_tools
 
-PARTIES=("Arium" "PrinceInsurance", "VDA")
+PARTIES=("Arium" "PrinceInsurance" "VDA")
 
 for PARTY in "${PARTIES[@]}" ; do
     LOCAL_FABRIC_VAR=$(echo "${PARTY}_LOCAL_FABRIC" | tr a-z A-Z)
