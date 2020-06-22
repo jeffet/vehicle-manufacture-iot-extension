@@ -110,7 +110,7 @@ CLI_DIR=$BASEDIR/cli_tools
 
 PARTIES=("Arium" "PrinceInsurance", "VDA")
 
-for PARTY in ${PARTIES} ; do
+for PARTY in "${PARTIES[@]}" ; do
     LOCAL_FABRIC_VAR=$(echo "${PARTY}_LOCAL_FABRIC" | tr a-z A-Z)
     ADMIN_CERT=$BASEDIR/tmp/${PARTY}_admin.pem
     ADMIN_KEY=$BASEDIR/tmp/${PARTY}_admin.key
