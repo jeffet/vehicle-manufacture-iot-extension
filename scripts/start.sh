@@ -100,7 +100,7 @@ PRINCEINSURANCE_LOCAL_FABRIC=$APPS_DIR/insurer/$FABRIC_CONFIG_NAME
 OUTPUT_FOLDER=$BASEDIR/network/output
 
 cp "$OUTPUT_FOLDER/Arium/Connection Profiles/Gateway.json" "$ARIUM_LOCAL_FABRIC/connection.json"
-cp "$OUTPUT_FOLDER/PrinceInsurance/Connection Profiles/Gateway.json" "$PRINCE_LOCAL_FABRIC/connection.json"
+cp "$OUTPUT_FOLDER/PrinceInsurance/Connection Profiles/Gateway.json" "$PRINCEINSURANCE_LOCAL_FABRIC/connection.json"
 cp "$OUTPUT_FOLDER/VDA/Connection Profiles/Gateway.json" "$VDA_LOCAL_FABRIC/connection.json"
 
 echo "####################"
