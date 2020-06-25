@@ -177,7 +177,15 @@ export default class FabricProxy {
     private async getContract(gateway: Gateway): Promise<Contract> {
         try {
             const network = await this.getNetwork(gateway);
-            return await network.getContract(this.config.contractName);
+
+            console.log('GOT NETWORK');
+
+            const contract = await network.getContract(this.config.contractName);
+
+            console.log('GOT CONTRACT');
+
+            return contract
+
         } catch (err) {
             throw new Error('Error connecting to channel. Does channel name exist? ERROR:' + err.message);
         }
@@ -192,8 +200,6 @@ export default class FabricProxy {
     }
 
     private async setupGateway(user: string): Promise<Gateway> {
-        console.log('SETUP GATEWAY', user);
-
         try {
             const gateway = new Gateway();
             // Set connection options; use 'admin' identity from application wallet
@@ -202,12 +208,8 @@ export default class FabricProxy {
                 wallet: this.wallet,
             };
 
-            console.log('CONNECTION', connectionOptions);
-
             // Connect to gateway using application specified parameters
             await gateway.connect(this.ccp, connectionOptions);
-
-            console.log('CONNECTED GATEWAY');
 
             return gateway;
         } catch (error) {
