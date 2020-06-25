@@ -11,7 +11,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-export const CHAINCODE_NAME = 'vehicle-manufacture-chaincode';
+export const CHAINCODE_NAME = 'vehicle-manufacture-contract';
 export const CHANNEL_NAME = 'vehiclemanufacture';
 
 export const DEFAULT_LOCAL_FABRIC_PATH = './vehiclemanufacture_fabric';
