@@ -211,6 +211,8 @@ export default class FabricProxy {
             // Connect to gateway using application specified parameters
             await gateway.connect(this.ccp, connectionOptions);
 
+            console.log('CONNECTED', connectionOptions)
+
             return gateway;
         } catch (error) {
             throw error;
