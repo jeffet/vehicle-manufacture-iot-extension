@@ -16,7 +16,7 @@ limitations under the License.
 // Bring key classes into scope, most importantly Fabric SDK network class
 import * as x509 from '@ampretia/x509';
 import { Block, Channel } from 'fabric-client';
-import { Contract, FileSystemCheckpointer, FileSystemWallet, Gateway, Network } from 'fabric-network';
+import { Contract, FileSystemCheckpointer, FileSystemWallet, Gateway, Network, GatewayOptions } from 'fabric-network';
 import * as fs from 'fs';
 import * as path from 'path';
 import { GenesisCheckpointer } from './checkpointer';
@@ -203,15 +203,17 @@ export default class FabricProxy {
         try {
             const gateway = new Gateway();
             // Set connection options; use 'admin' identity from application wallet
-            const connectionOptions = {
+            const connectionOptions: GatewayOptions = {
                 identity: user,
                 wallet: this.wallet,
+                discovery: {
+                    enabled: false,
+                    asLocalhost: false
+                }
             };
 
             // Connect to gateway using application specified parameters
             await gateway.connect(this.ccp, connectionOptions);
-
-            console.log('CONNECTED', connectionOptions)
 
             return gateway;
         } catch (error) {
