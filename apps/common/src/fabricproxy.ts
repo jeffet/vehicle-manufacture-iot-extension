@@ -207,7 +207,7 @@ export default class FabricProxy {
                 identity: user,
                 wallet: this.wallet,
                 discovery: {
-                    enabled: false,
+                    enabled: true,
                     asLocalhost: false
                 }
             };

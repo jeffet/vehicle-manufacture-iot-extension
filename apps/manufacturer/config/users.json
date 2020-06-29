@@ -12,15 +12,18 @@
             },
             {
                 "name": "vehicle_manufacture.role.organization.update",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "Arium"
+                "value": "Arium",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "manufacturer"
+                "value": "manufacturer",
+                "ecert": true
             }
         ]
     },
@@ -29,19 +32,23 @@
         "attrs": [
             {
                 "name": "vehicle_manufacture.role.vehicle.read",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.usage_event.create",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "Arium"
+                "value": "Arium",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "manufacturer"
+                "value": "manufacturer",
+                "ecert": true
             }
         ]
     },
@@ -50,27 +57,33 @@
         "attrs": [
             {
                 "name": "vehicle_manufacture.role.order.read",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.order.update",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.vehicle.create",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.vehicle.update",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "Arium"
+                "value": "Arium",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "manufacturer"
+                "value": "manufacturer",
+                "ecert": true
             }
         ]
     },
@@ -79,19 +92,23 @@
         "attrs": [
             {
                 "name": "vehicle_manufacture.role.order.create",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.order.read",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "Arium"
+                "value": "Arium",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "manufacturer"
+                "value": "manufacturer",
+                "ecert": true
             }
         ]
     },
@@ -100,19 +117,23 @@
         "attrs": [
             {
                 "name": "vehicle_manufacture.role.vehicle.read",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.usage_event.read",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "Arium"
+                "value": "Arium",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "manufacturer"
+                "value": "manufacturer",
+                "ecert": true
             }
         ]
     }

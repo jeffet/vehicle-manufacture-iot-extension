@@ -22,4 +22,7 @@
           max_enrollments: "{{ max_enrollments }}"
           type: "{{ enrollment_type }}"
           attributes:
+            - name: "vehicle_manufacture.username"
+              value: "{{ enrollment_id }}@{{ manufacturer_name }}"
+              ecert: true
             "{{ attributes }}"

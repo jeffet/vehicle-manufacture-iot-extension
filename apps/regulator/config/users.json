@@ -12,11 +12,13 @@
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "VDA"
+                "value": "VDA",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "regulator"
+                "value": "regulator",
+                "ecert": true
             }
         ]
     },
@@ -25,27 +27,33 @@
         "attrs": [
             {
                 "name": "vehicle_manufacture.role.vehicle.read",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.usage_event.read",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.policy.read",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.order.read",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.company",
-                "value": "VDA"
+                "value": "VDA",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.org_type",
-                "value": "regulator"
+                "value": "regulator",
+                "ecert": true
             }
         ]
     }
