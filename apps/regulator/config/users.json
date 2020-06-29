@@ -11,6 +11,11 @@
                 "value": "vehicle_manufacture.*"
             },
             {
+                "name": "vehicle_manufacture.username",
+                "value": "registrar@VDA",
+                "ecert": true
+            },
+            {
                 "name": "vehicle_manufacture.company",
                 "value": "VDA",
                 "ecert": true
@@ -25,6 +30,11 @@
     {
         "name": "audit",
         "attrs": [
+            {
+                "name": "vehicle_manufacture.username",
+                "value": "audit@VDA",
+                "ecert": true
+            },
             {
                 "name": "vehicle_manufacture.role.vehicle.read",
                 "value": "y",

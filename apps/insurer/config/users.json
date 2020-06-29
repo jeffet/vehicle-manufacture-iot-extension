@@ -11,6 +11,11 @@
                 "value": "vehicle_manufacture.*"
             },
             {
+                "name": "vehicle_manufacture.username",
+                "value": "registrar@PrinceInsurance",
+                "ecert": true
+            },
+            {
                 "name": "vehicle_manufacture.company",
                 "value": "PrinceInsurance",
                 "ecert": true
@@ -25,6 +30,11 @@
     {
         "name": "policies",
         "attrs": [
+            {
+                "name": "vehicle_manufacture.username",
+                "value": "policies@PrinceInsurance",
+                "ecert": true
+            },
             {
                 "name": "vehicle_manufacture.role.vehicle.read",
                 "value": "y",
@@ -59,6 +69,11 @@
     {
         "name": "readonly",
         "attrs": [
+            {
+                "name": "vehicle_manufacture.username",
+                "value": "readonly@PrinceInsurance",
+                "ecert": true
+            },
             {
                 "name": "vehicle_manufacture.role.vehicle.read",
                 "value": "y",
