@@ -220,7 +220,6 @@ esac
 echo "#############################"
 echo "# CLEAN ENV VARS FOR DOCKER #"
 echo "#############################"
-unset $(cat $NETWORK_DOCKER_COMPOSE_DIR/.env | sed -E 's/(.*)=.*/\1/' | xargs)
 unset $(cat $APPS_DOCKER_COMPOSE_DIR/.env | sed -E 's/(.*)=.*/\1/' | xargs)
 
 echo "####################"
