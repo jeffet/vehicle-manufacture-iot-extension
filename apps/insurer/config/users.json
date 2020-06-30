@@ -47,7 +47,8 @@
             },
             {
                 "name": "vehicle_manufacture.role.policy.create",
-                "value": "y"
+                "value": "y",
+                "ecert": true
             },
             {
                 "name": "vehicle_manufacture.role.usage_event.read",
