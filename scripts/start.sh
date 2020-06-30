@@ -148,25 +148,27 @@ REGULATOR_DIR=$APPS_DIR/regulator
 
 docker-compose -f $APPS_DOCKER_COMPOSE_DIR/docker-compose.yaml -p node up -d
 
-sleep 10
+restart_if_needed() {
+    PORT=${1}
 
-check_running() {
-    CONTAINERS=$(docker ps -f "status=exited" -f "name=_app" -q)
+    eval "curl --output /dev/null --silent --head --fail http://localhost:$PORT"
+    EXIT=$?
 
-    if [ -z "$CONTAINERS" ]; then
+    if [ "$EXIT" -eq 0 ]; then
         return 0
     fi
 
-    for CONTAINER in "$CONTAINERS"; do
-        echo "Restarting container $CONTAINER"
-        docker restart $CONTAINER
-    done
+    CONTAINERS=$(docker ps -f "status=exited" -f "name=_app" -q)
+
+    if [[ ! -z "$CONTAINERS" ]]; then
+        for CONTAINER in "$CONTAINERS"; do
+            echo "Restarting container $CONTAINER"
+            docker restart $CONTAINER
+        done
+    fi
 
     return 1
 }
-
-wait_until "check_running" 3 10
-
 
 CAR_BUILDER_PORT=6001
 ARIUM_PORT=6002
@@ -177,7 +179,7 @@ cd $BASEDIR
 for PORT in $CAR_BUILDER_PORT $ARIUM_PORT $VDA_PORT $PRINCE_PORT
 do
     echo "WAITING FOR REST SERVER ON PORT $PORT"
-        wait_until "curl --output /dev/null --silent --head --fail http://localhost:$PORT" 30 2
+    wait_until "restart_if_needed $PORT" 30 2
 done
 
 echo "###################################"
