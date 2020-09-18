@@ -16,7 +16,13 @@ import { PolicyService } from '../policy.service';
 import { PolicyRequest } from '../popup/popup.component';
 import { VehicleService } from '../vehicle.service';
 
-const EventTypes = [ 'ACTIVATED', 'CRASHED', 'OVERHEATED', 'OIL_FREEZING', 'ENGINE_FAILURE'];
+const EventTypes = [
+  'ACTIVATED',
+  'CRASHED',
+  'OVERHEATED',
+  'OIL_FREEZING',
+  'ENGINE_FAILURE',
+];
 
 interface UsageEvent {
   id: string;
@@ -27,16 +33,15 @@ interface UsageEvent {
 @Component({
   selector: 'app-overview',
   templateUrl: './overview.component.html',
-  styleUrls: ['./overview.component.css']
+  styleUrls: ['./overview.component.css'],
 })
 export class OverviewComponent implements OnInit {
-
   public placeholder = '-';
 
   public num_policies = 0;
 
   private alerts: UsageEvent[] = [];
-  date:number;
+  date: number;
   url: string = '';
 
   public policiesLoaded = false;
@@ -46,43 +51,48 @@ export class OverviewComponent implements OnInit {
     return this.policyService.requestStack || [];
   }
 
-  constructor(private vehicleService: VehicleService,
-              private policyService: PolicyService,
-              private zone: NgZone) {
-
+  constructor(
+    private vehicleService: VehicleService,
+    private policyService: PolicyService,
+    private zone: NgZone
+  ) {
     this.url = '/api';
     this.date = Date.now();
   }
 
   ngOnInit() {
-    this.policyService.getAll()
-      .subscribe((data: any) => {
-        this.num_policies = data.length;
-        this.policiesLoaded = true;
-      });
-
-    this.vehicleService.getUsage()
-      .subscribe((events) => {
-        this.alerts = events;
-        console.log(this.alerts);
-        this.usageLoaded = true;
-      });
-
-    this.setupListener(`${this.url}/vehicles/usage/events/added`, (event: any) => {
-      this.alerts.unshift({
-        id: event.id,
-        timestamp: event.timestamp,
-        eventType: EventTypes[event.eventType]
-      });
+    this.policyService.getAll().subscribe((data: any) => {
+      this.num_policies = data.length;
+      this.policiesLoaded = true;
     });
+
+    this.vehicleService.getUsage().subscribe((events) => {
+      this.alerts = events;
+      console.log(this.alerts);
+      this.usageLoaded = true;
+    });
+
+    this.setupListener(
+      `${this.url}/vehicles/usage/events/added`,
+      (event: any) => {
+        this.alerts.unshift({
+          id: event.id,
+          timestamp: event.timestamp,
+          eventType: EventTypes[event.eventType],
+        });
+      }
+    );
 
     this.setupListener(`${this.url}/policies/events/created`, (event: any) => {
       this.num_policies++;
     });
 
-    this.setupListener(`${this.url}/policies/events/requested`, (request: PolicyRequest) => {
-      this.policyService.requestStack.push(request);
-    });
+    this.setupListener(
+      `${this.url}/policies/events/requested`,
+      (request: PolicyRequest) => {
+        this.policyService.requestStack.push(request);
+      }
+    );
   }
 
   setupListener(url: string, onMessage: (msg: any) => void) {
@@ -92,12 +102,13 @@ export class OverviewComponent implements OnInit {
     };
 
     usageEventSource.onerror = (evt) => {
-        console.log('ERROR', evt);
-        this.setupListener(url, onMessage);
+      console.log('ERROR', evt);
+      this.setupListener(url, onMessage);
     };
 
     usageEventSource.onclose = (evt) => {
       console.error('Usage event listener closed');
+      this.setupListener(url, onMessage);
     };
 
     usageEventSource.onmessage = (evt) => {
@@ -106,10 +117,15 @@ export class OverviewComponent implements OnInit {
     };
   }
 
-  provideInsurance({approve, requestId}: {approve: boolean, requestId: string}) {
-    return this.policyService.provideInsurance({approve, requestId})
-      .subscribe(() => {
-
-      });
+  provideInsurance({
+    approve,
+    requestId,
+  }: {
+    approve: boolean;
+    requestId: string;
+  }) {
+    return this.policyService
+      .provideInsurance({ approve, requestId })
+      .subscribe(() => {});
   }
 }

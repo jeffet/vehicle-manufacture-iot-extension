@@ -1,10 +1,10 @@
 {
   "name": "insurer",
-  "version": "0.2.1",
+  "version": "1.1.0",
   "scripts": {
     "ng": "ng",
     "start": "node server/dist/server.js",
-    "test": "ng test --watch=false",
+    "test": "echo 'No tests implemented';",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "build:angular": "ng build",

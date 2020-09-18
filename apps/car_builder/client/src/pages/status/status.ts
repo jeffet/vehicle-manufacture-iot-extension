@@ -28,6 +28,7 @@ import { Http, RequestOptions, Headers } from '@angular/http';
   templateUrl: 'status.html',
 })
 export class StatusPage {
+  lastUpdated: Date;
   car: Object;
   order: any;
   ready: Boolean = false;
@@ -37,7 +38,14 @@ export class StatusPage {
   baseStatus: string = 'Insure me';
   insureStatus: string = this.baseStatus;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private geolocation: Geolocation, private configProvider: ConfigProvider, private ref: ChangeDetectorRef, private http: Http) {
+  constructor(
+    public navCtrl: NavController,
+    public navParams: NavParams,
+    private geolocation: Geolocation,
+    private configProvider: ConfigProvider,
+    private ref: ChangeDetectorRef,
+    private http: Http
+  ) {
     this.ready = false;
     this.car = navParams.get('car');
 
@@ -45,57 +53,64 @@ export class StatusPage {
 
     this.stage = [this.order.placed + ''];
 
-    this.relativeDate = function(input: number, start: number) {
-      console.log(start, input);
+    this.lastUpdated = new Date();
+
+    this.relativeDate = function (input: number, start: number) {
+      console.log(input, start);
 
       if (input) {
         var diff = input - start;
-        diff = diff / 1000
+        diff = diff / 1000;
         diff = Math.round(diff);
 
-        var result = '+' + diff +  ' secs'
+        var result = '+' + diff + ' secs';
 
         return result;
       }
     };
-    
 
     this.configProvider.ready.subscribe((ready) => {
       if (ready) {
         this.config = this.configProvider.getConfig();
-        
-        this.setupListener(this.config.restServer+'/orders/events/updated', this.handleOrderUpdate.bind(this));
+
+        this.setupListener(
+          this.config.restServer + '/orders/events/updated',
+          this.handleOrderUpdate.bind(this)
+        );
 
         this.ready = true;
       }
     });
   }
 
-  setupListener (url: string, callback: (data: any, listener: any) => void) {
+  setupListener(url: string, callback: (data: any, listener: any) => void) {
     const listener = new (window as any).EventSource(url);
 
     listener.onopen = (evt) => {
       console.log('OPEN', evt);
-    }
+    };
 
     listener.onerror = (evt) => {
-        console.log('ERROR', evt);
-    }
+      console.log('ERROR', evt);
+      this.setupListener(url, callback);
+    };
 
     listener.onclose = (evt) => {
       this.setupListener(url, callback);
-    }
-    
+    };
+
     listener.onmessage = (evt) => {
       const update = JSON.parse(evt.data);
 
       callback(update, listener);
 
       this.ref.detectChanges();
-    }
+    };
   }
 
   handleOrderUpdate(update: any, listener: any) {
+    console.log(update);
+
     if (update.id === this.order.id) {
       let i = update.orderStatus;
       this.stage[i] = this.relativeDate(update.timestamp, this.stage[0]);
@@ -103,27 +118,64 @@ export class StatusPage {
         this.order.vin = update.vin;
       }
 
-      if (update.orderStatus === 4) {
-        listener.close()
+      if (update.orderStatus === 4 && listener) {
+        listener.close();
       }
     }
   }
 
   handlePolicyCreated(policy: any, listener: any) {
-    if (policy.holderId === this.order.ordererId && policy.vin === this.order.vin) {
+    if (
+      policy.holderId === this.order.ordererId &&
+      policy.vin === this.order.vin
+    ) {
       this.insureStatus = `Policy created (${policy.id})`;
 
       listener.close();
     }
   }
 
+  async getOrderHistory() {
+    this.lastUpdated = new Date();
+
+    const headers = new Headers();
+    headers.append(
+      'Authorization',
+      'Basic ' + btoa(this.config.user + ':' + this.config.user + 'pw')
+    );
+    headers.append('Content-Type', 'application/json');
+    const reqOpts = new RequestOptions({});
+    reqOpts.headers = headers;
+
+    try {
+      const orderHistory = await this.http
+        .get(
+          this.config.restServer + '/orders/' + this.order.id + '/history',
+          reqOpts
+        )
+        .toPromise();
+
+      for (const update of orderHistory.json().splice(1)) {
+        const formattedUpdate = {
+          id: update.value.id,
+          timestamp: update.timestamp * 1000,
+          orderStatus: update.value.orderStatus,
+          vin: update.value.vin,
+        };
+
+        this.handleOrderUpdate(formattedUpdate, null);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   async insure() {
     this.insureStatus = 'Processing...';
-    
-    this.stage[5] = "Insured";
+
+    this.stage[5] = 'Insured';
 
     const success = async (position) => {
-
       const date = new Date();
       date.setMonth(date.getMonth() + 12);
 
@@ -134,56 +186,68 @@ export class StatusPage {
         endDate: date.getTime(),
         location: {
           latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        }
+          longitude: position.coords.longitude,
+        },
       });
 
       const headers = new Headers();
-      headers.append('Authorization', 'Basic ' + btoa(this.config.user + ':' + this.config.user + 'pw'));
+      headers.append(
+        'Authorization',
+        'Basic ' + btoa(this.config.user + ':' + this.config.user + 'pw')
+      );
       headers.append('Content-Type', 'application/json');
       const reqOpts = new RequestOptions({});
       reqOpts.headers = headers;
 
       try {
-        await this.http.post(this.config.restServer + '/policies', data, reqOpts).toPromise();
+        await this.http
+          .post(this.config.restServer + '/policies', data, reqOpts)
+          .toPromise();
 
         this.insureStatus = 'Request sent \u2713';
 
-        this.setupListener(this.config.restServer + '/policies/events/created', this.handlePolicyCreated.bind(this));
+        this.setupListener(
+          this.config.restServer + '/policies/events/created',
+          this.handlePolicyCreated.bind(this)
+        );
       } catch (err) {
         console.log(err);
       }
-    }
+    };
 
     const error = (error) => {
-      console.log(error)
-      this.stage.splice(5,1)
+      console.log(error);
+      this.stage.splice(5, 1);
       this.insureStatus = this.baseStatus;
 
-      switch(error.code) {
+      switch (error.code) {
         case error.PERMISSION_DENIED:
-          console.log("Location information is unavailable, your browser may be blocking them. Using a default location")
-          this.stage[5] = "Insured";
-          success({"coords": {"latitude": null, "longitude": null}})
+          console.log(
+            'Location information is unavailable, your browser may be blocking them. Using a default location'
+          );
+          this.stage[5] = 'Insured';
+          success({ coords: { latitude: null, longitude: null } });
           break;
         case error.POSITION_UNAVAILABLE:
-          console.log("Location information is unavailable, your browser may be blocking them. Using a default location")
-          this.stage[5] = "Insured";
-          success({"coords": {"latitude": null, "longitude": null}})
+          console.log(
+            'Location information is unavailable, your browser may be blocking them. Using a default location'
+          );
+          this.stage[5] = 'Insured';
+          success({ coords: { latitude: null, longitude: null } });
           break;
         case error.TIMEOUT:
-          alert("The request to get user location timed out.")
+          alert('The request to get user location timed out.');
           break;
         case error.UNKNOWN_ERROR:
-          alert("An unknown error occurred.")
+          alert('An unknown error occurred.');
           break;
-        default: 
-          console.log("Location information is unknown. Using default")
-          this.stage[5] = "Insured";
-          success({"coords": {"latitude": null, "longitude": null}})
+        default:
+          console.log('Location information is unknown. Using default');
+          this.stage[5] = 'Insured';
+          success({ coords: { latitude: null, longitude: null } });
           break;
       }
-    }
+    };
 
     try {
       await success(await this.geolocation.getCurrentPosition());

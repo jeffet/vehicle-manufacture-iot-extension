@@ -43,7 +43,7 @@ interface VehicleDetails {
     makeId: string;
     modelType: string;
     colour: string;
-  }
+  };
 }
 
 interface UsageEvent {
@@ -61,10 +61,9 @@ interface UsageEvent {
 @Component({
   selector: 'app-policy',
   templateUrl: './policy.component.html',
-  styleUrls: ['./policy.component.css']
+  styleUrls: ['./policy.component.css'],
 })
 export class PolicyComponent implements OnInit, OnDestroy {
-
   private L: any;
 
   private policy: Policy;
@@ -81,7 +80,7 @@ export class PolicyComponent implements OnInit, OnDestroy {
     acceleration: '-.--',
     outsideTemperature: '-.--',
     objectTemperature: '-.--',
-    lightLevel: '-.--'
+    lightLevel: '-.--',
   };
 
   public deviceConnected = false;
@@ -89,18 +88,29 @@ export class PolicyComponent implements OnInit, OnDestroy {
 
   private listeners: Map<string, any> = new Map();
 
-  public readonly eventTypes = [ 'ACTIVATED', 'CRASHED', 'OVERHEATED', 'OIL FREEZING', 'ENGINE_FAILURE'];
+  public readonly eventTypes = [
+    'ACTIVATED',
+    'CRASHED',
+    'OVERHEATED',
+    'OIL FREEZING',
+    'ENGINE_FAILURE',
+  ];
 
-  constructor(private winRef: WindowRef,
-              private http: HttpClient,
-              private ref: ChangeDetectorRef,
-              private policyService: PolicyService,
-              private vehicleService: VehicleService) {
+  constructor(
+    private winRef: WindowRef,
+    private http: HttpClient,
+    private ref: ChangeDetectorRef,
+    private policyService: PolicyService,
+    private vehicleService: VehicleService
+  ) {
     let headers = new HttpHeaders();
-    headers = headers.append('Authorization', 'Basic ' + btoa('policies:policies'));
+    headers = headers.append(
+      'Authorization',
+      'Basic ' + btoa('policies:policies')
+    );
 
     this.httpOptions = {
-      headers
+      headers,
     };
   }
 
@@ -110,32 +120,38 @@ export class PolicyComponent implements OnInit, OnDestroy {
       .flatMap((vehicle) => {
         this.vehicle = vehicle;
         this.ready = true;
-        return this.policyService.setup(this.policy)
+        return this.policyService.setup(this.policy);
       })
       .subscribe(() => {
         console.log('Successfully sent VIN');
-        this.setupListener(`${this.url}/vehicles/${this.policy.vin}/telemetry`, (data) => {
-          if (!data.hasOwnProperty('connected')) {
-            this.deviceConnected = true;
-            for (const key in data) {
-              if (data.hasOwnProperty(key)) {
-                data[key] = parseFloat(String(data[key])).toFixed(2);
+        this.setupListener(
+          `${this.url}/vehicles/${this.policy.vin}/telemetry`,
+          (data) => {
+            if (!data.hasOwnProperty('connected')) {
+              this.deviceConnected = true;
+              for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                  data[key] = parseFloat(String(data[key])).toFixed(2);
+                }
               }
+              this.liveData = data;
+              this.ref.detectChanges();
+            } else {
+              this.deviceConnected = data.connected;
             }
-            this.liveData = data;
-            this.ref.detectChanges();
-          } else {
-            this.deviceConnected = data.connected;
+            this.connectionTimeout();
           }
-          this.connectionTimeout();
-        });
+        );
       });
     this.handleMap();
 
-    const usageEventListener = this.setupListener(`${this.url}/vehicles/usage/events/added`, (event: any) => {
-      event.new = true;
-      this.usageEvents.unshift(event);
-    });
+    const usageEventListener = this.setupListener(
+      `${this.url}/vehicles/usage/events/added`,
+      (event: any) => {
+        event.new = true;
+        this.usageEvents.unshift(event);
+      }
+    );
     this.listeners.set('usageEvents', usageEventListener);
   }
 
@@ -167,12 +183,13 @@ export class PolicyComponent implements OnInit, OnDestroy {
     };
 
     usageEventSource.onerror = (evt) => {
-        console.log('ERROR', evt);
-        this.setupListener(url, onMessage);
+      console.log('ERROR', evt);
+      this.setupListener(url, onMessage);
     };
 
     usageEventSource.onclose = (evt) => {
       console.error('Usage event listener closed');
+      this.setupListener(url, onMessage);
     };
 
     usageEventSource.onmessage = (evt) => {
@@ -187,14 +204,15 @@ export class PolicyComponent implements OnInit, OnDestroy {
     const pathname = window.location.pathname.split('/');
     const policyId = pathname[pathname.length - 1];
 
-    return this.policyService.get(policyId)
+    return this.policyService
+      .get(policyId)
       .flatMap((policy: Policy) => {
         this.policy = policy;
         this.user = {
           forename: this.policy.holderId.split('@')[0],
           surname: 'Harris',
           memberSince: 1415923200000,
-          address: ['40 Garick Pass', 'Newbury', 'United Kingdom']
+          address: ['40 Garick Pass', 'Newbury', 'United Kingdom'],
         };
 
         return this.policyService.getUsageEvents(this.policy);
@@ -214,23 +232,26 @@ export class PolicyComponent implements OnInit, OnDestroy {
     if (!lat || lat === 'null' || !long || long === 'null') {
       console.log('NO LOCATION SENT');
       // LOCATION WAS NOT SUPPLIED TRY TO USE LOCATION OF INSURER TO POSITION MAP AS LIKELY DEMO RUNNING IN SAME PLACE
-      navigator.geolocation.getCurrentPosition((position) => {
-        const location = position;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = position;
 
-        this.drawMap(location);
-      }, (error) => {
-        // COULDN'T GET LOCATION OF WHERE BROWSER IS RUNNING USE A DEFAULT
-        const location = {
-          coords: {
-            accuracy: 20,
-            latitude: 41.1149552,
-            longitude: -73.719111
-          },
-          timestamp: 1505126421109
-        };
+          this.drawMap(location);
+        },
+        (error) => {
+          // COULDN'T GET LOCATION OF WHERE BROWSER IS RUNNING USE A DEFAULT
+          const location = {
+            coords: {
+              accuracy: 20,
+              latitude: 41.1149552,
+              longitude: -73.719111,
+            },
+            timestamp: 1505126421109,
+          };
 
-        this.drawMap(location);
-      });
+          this.drawMap(location);
+        }
+      );
     } else {
       console.log('LOCATION SENT');
       // USER SUPPLIED LOCATION
@@ -238,9 +259,9 @@ export class PolicyComponent implements OnInit, OnDestroy {
         coords: {
           accuracy: 20,
           latitude: lat,
-          longitude: long
+          longitude: long,
         },
-        timestamp: 1505126421109
+        timestamp: 1505126421109,
       };
 
       this.drawMap(location);
@@ -248,26 +269,27 @@ export class PolicyComponent implements OnInit, OnDestroy {
   }
 
   drawMap(location) {
-    const map_location = [
-      location.coords.latitude,
-      location.coords.longitude
-    ];
+    const map_location = [location.coords.latitude, location.coords.longitude];
 
     const mymap = this.L.map('mapid').setView(map_location, 15);
     // style for map comes from mapbox - can create own in mapbox studio
-    this.L.tileLayer('https://api.mapbox.com/styles/v1/andrewhurt2/cjwlvvmn12k8d1cmszmcsr235/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYW5uYWV0IiwiYSI6ImNpcXdkeTFhdzAwMnBodG5qZnhsa3pwNzgifQ.sLCy6WaD4pURO1ulOFoVCg', {
-      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-      maxZoom: 18,
-      zoom: 1
-    }).addTo(mymap);
+    this.L.tileLayer(
+      'https://api.mapbox.com/styles/v1/andrewhurt2/cjwlvvmn12k8d1cmszmcsr235/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYW5uYWV0IiwiYSI6ImNpcXdkeTFhdzAwMnBodG5qZnhsa3pwNzgifQ.sLCy6WaD4pURO1ulOFoVCg',
+      {
+        attribution:
+          'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18,
+        zoom: 1,
+      }
+    ).addTo(mymap);
 
     const carIcon = this.L.icon({
       iconUrl: '../../assets/images/car.png',
       iconSize: [40, 40],
       iconAnchor: [20, 20],
-      popupAnchor: [-3, -76]
+      popupAnchor: [-3, -76],
     });
 
-    const marker = this.L.marker(map_location, {icon: carIcon}).addTo(mymap);
+    const marker = this.L.marker(map_location, { icon: carIcon }).addTo(mymap);
   }
 }

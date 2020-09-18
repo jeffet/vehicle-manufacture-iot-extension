@@ -11,67 +11,85 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-angular.module('bc-vda')
+angular
+  .module('bc-vda')
 
-  .controller('DashboardCtrl', ['$scope', '$http', function ($scope, $http) {
+  .controller('DashboardCtrl', [
+    '$scope',
+    '$http',
+    function ($scope, $http) {
+      const EventTypes = [
+        'ACTIVATED',
+        'CRASHED',
+        'OVERHEATED',
+        'OIL_FREEZING',
+        'ENGINE_FAILURE',
+      ];
 
-    const EventTypes = ['ACTIVATED', 'CRASHED', 'OVERHEATED', 'OIL_FREEZING', 'ENGINE_FAILURE'];
+      $scope.transactions = [];
 
-    $scope.transactions = [];
+      var txUrl = '/api/histories/blocks';
 
-    var txUrl = '/api/histories/blocks';
+      $http
+        .get(txUrl, {
+          headers: { Authorization: `Basic ${btoa('audit:auditpw')}` },
+        })
+        .then(function (response, err) {
+          if (err) {
+            console.log(err);
+          } else if (Array.isArray(response.data)) {
+            response.data.forEach((block) => {
+              $scope.addBlock(block);
+            });
 
-    $http.get(txUrl, { headers: { 'Authorization': `Basic ${btoa('audit:auditpw')}` } })
-      .then(function (response, err) {
-        if (err) {
-          console.log(err);
-        } else if (Array.isArray(response.data)) {
-          response.data.forEach((block) => {
-            $scope.addBlock(block);
-          });
+            $scope.transactions.sort((a, b) => a.timestamp - b.timestamp);
+          }
+        });
 
-          $scope.transactions.sort((a, b) => a.timestamp - b.timestamp);
-        }
-      });
+      function setupBlockListener() {
+        const blockUpdates = new EventSource(txUrl + '/events/created');
 
-    function setupBlockListener() {
-      const blockUpdates = new EventSource(txUrl + '/events/created');
+        blockUpdates.onopen = (evt) => {
+          console.log('OPEN', evt);
+        };
 
-      blockUpdates.onopen = (evt) => {
-        console.log('OPEN', evt);
+        blockUpdates.onerror = (evt) => {
+          console.log('ERROR', evt);
+          setupBlockListener();
+        };
+
+        blockUpdates.onclose = (evt) => {
+          setupBlockListener();
+        };
+
+        blockUpdates.onmessage = (evt) => {
+          const data = JSON.parse(evt.data);
+
+          $scope.addBlock(data, true);
+
+          $scope.$apply();
+        };
       }
+      setupBlockListener();
 
-      blockUpdates.onerror = (evt) => {
-        console.log('ERROR', evt);
-      }
-
-      blockUpdates.onclose = (evt) => {
-        setupBlockListener();
-      }
-
-      blockUpdates.onmessage = (evt) => {
-        const data = JSON.parse(evt.data);
-
-        $scope.addBlock(data, true);
-
-        $scope.$apply();
-      }
-    }
-    setupBlockListener();
-
-    $scope.addBlock = function (block, isNew = false) {
-      block.transactions.forEach((transaction) => {
-        if (transaction.contract === 'org.acme.vehicle_network.vehicles') {
-          $scope.transactions.push({
-            timestamp: transaction.timestamp,
-            transaction_id: transaction.txId,
-            transaction_type: transaction.name,
-            transaction_submitter: transaction.caller.identity + '@' + transaction.caller.org,
-            transaction_class: isNew ? "new-row" : "existing-row",
-            block_number: block.number,
-            additional_info: transaction.name === 'addUsageEvent' ? EventTypes[transaction.parameters.eventType] : null
-          });
-        }
-      });
-    };
-  }]);
+      $scope.addBlock = function (block, isNew = false) {
+        block.transactions.forEach((transaction) => {
+          if (transaction.contract === 'org.acme.vehicle_network.vehicles') {
+            $scope.transactions.push({
+              timestamp: transaction.timestamp,
+              transaction_id: transaction.txId,
+              transaction_type: transaction.name,
+              transaction_submitter:
+                transaction.caller.identity + '@' + transaction.caller.org,
+              transaction_class: isNew ? 'new-row' : 'existing-row',
+              block_number: block.number,
+              additional_info:
+                transaction.name === 'addUsageEvent'
+                  ? EventTypes[transaction.parameters.eventType]
+                  : null,
+            });
+          }
+        });
+      };
+    },
+  ]);

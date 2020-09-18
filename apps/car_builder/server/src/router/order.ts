@@ -13,55 +13,81 @@ limitations under the License.
 */
 import { BaseRouter, Config } from 'common';
 import * as EventSource from 'eventsource';
-import { post } from 'request-promise-native';
+import { post, get } from 'request-promise-native';
 
 export class OrderRouter extends BaseRouter {
-    public static basePath = 'orders';
+  public static basePath = 'orders';
 
-    constructor() {
-        super();
-    }
+  constructor() {
+    super();
+  }
 
-    public async prepareRoutes() {
-        const manufacturerUrl = await Config.getAppApiUrl('manufacturer');
+  public async prepareRoutes() {
+    const manufacturerUrl = await Config.getAppApiUrl('manufacturer');
 
-        this.router.post('/', async (req, res) => {
-            const options = {
-                body: req.body,
-                headers: {
-                    Authorization: 'Basic ' + Buffer.from('carbuilder:carbuilderpw').toString('base64'),
-                },
-                json: true,
-            };
+    this.router.post('/', async (req, res) => {
+      const options = {
+        body: req.body,
+        headers: {
+          Authorization:
+            'Basic ' +
+            Buffer.from('carbuilder:carbuilderpw').toString('base64'),
+        },
+        json: true,
+      };
 
-            try {
-                const data = await post(manufacturerUrl + '/orders', options);
-                res.send(data);
-            } catch (err) {
-                res.status(500);
-                res.send(err.message);
-            }
-        });
+      try {
+        const data = await post(manufacturerUrl + '/orders', options);
+        res.send(data);
+      } catch (err) {
+        res.status(500);
+        res.send(err.message);
+      }
+    });
 
-        this.router.get('/events/updated', (req, res) => {
-            this.initEventSourceListener(req, res, this.connections, 'UPDATE_ORDER');
-        });
+    this.router.get('/:orderId/history', async (req, res) => {
+      const options = {
+        headers: {
+          Authorization:
+            'Basic ' +
+            Buffer.from('carbuilder:carbuilderpw').toString('base64'),
+        },
+        json: true,
+      };
 
-        const orderUpdated = new EventSource(manufacturerUrl + '/orders/events/updated');
+      try {
+        const data = await get(
+          manufacturerUrl + '/orders/' + req.params.orderId + '/history',
+          options
+        );
+        res.send(data);
+      } catch (err) {
+        res.status(500);
+        res.send(err.message);
+      }
+    });
 
-        orderUpdated.onopen = (evt) => {
-            console.log('OPEN', evt);
-        };
+    this.router.get('/events/updated', (req, res) => {
+      this.initEventSourceListener(req, res, this.connections, 'UPDATE_ORDER');
+    });
 
-        orderUpdated.onerror = (evt) => {
-            console.log('ERROR', evt);
-        };
+    const orderUpdated = new EventSource(
+      manufacturerUrl + '/orders/events/updated'
+    );
 
-        orderUpdated.onmessage = (evt) => {
-            this.publishEvent({
-                event_name: 'UPDATE_ORDER',
-                payload: Buffer.from(evt.data),
-            });
-        };
-    }
+    orderUpdated.onopen = (evt) => {
+      console.log('OPEN', evt);
+    };
+
+    orderUpdated.onerror = (evt) => {
+      console.log('ERROR', evt);
+    };
+
+    orderUpdated.onmessage = (evt) => {
+      this.publishEvent({
+        event_name: 'UPDATE_ORDER',
+        payload: Buffer.from(evt.data),
+      });
+    };
+  }
 }
