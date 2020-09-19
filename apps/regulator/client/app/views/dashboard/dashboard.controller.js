@@ -34,8 +34,9 @@ angular.module('bc-vda')
         }
       });
 
-    function setupBlockListener() {
-      const blockUpdates = new EventSource(txUrl + '/events/created');
+      let blockUpdates; // store this outside so we can check its state later at regular intervals
+      function setupBlockListener() {
+      blockUpdates = new EventSource(txUrl + '/events/created');
 
       blockUpdates.onopen = (evt) => {
         console.log('OPEN', evt);
@@ -43,6 +44,7 @@ angular.module('bc-vda')
 
       blockUpdates.onerror = (evt) => {
         console.log('ERROR', evt);
+        setupBlockListener();
       }
 
       blockUpdates.onclose = (evt) => {
@@ -58,6 +60,18 @@ angular.module('bc-vda')
       }
     }
     setupBlockListener();
+    
+    let reconnecting = false;
+    setInterval(() => {
+      if (blockUpdates.readyState == EventSource.CLOSED) {
+        reconnecting = true;
+        console.log('reconnecting...');
+        setupBlockListener();
+      } else if (reconnecting){
+        reconnecting = false;
+        console.log('reconnected!');
+      }
+    }, 3000);
 
     $scope.addBlock = function (block, isNew = false) {
       block.transactions.forEach((transaction) => {

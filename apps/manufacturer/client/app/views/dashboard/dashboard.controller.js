@@ -87,8 +87,9 @@ angular.module('bc-manufacturer')
   var updateOrder;
   var destroyed = false;
 
+  let orderUpdates; // store this outside of function so we can check its state later at regular intervals
   function setupPlaceOrderListener() {
-    const orderUpdates = new EventSource(baseOrderUrl + '/events/placed');
+    orderUpdates = new EventSource(baseOrderUrl + '/events/placed');
 
       orderUpdates.onopen = (evt) => {
         console.log('OPEN', evt);
@@ -96,6 +97,7 @@ angular.module('bc-manufacturer')
 
       orderUpdates.onerror = (evt) => {
           console.log('ERROR', evt);
+          setupPlaceOrderListener();
       }
 
       orderUpdates.onclose = (evt) => {
@@ -109,6 +111,18 @@ angular.module('bc-manufacturer')
       }
   }
   setupPlaceOrderListener();
+
+  let reconnecting = false;
+  setInterval(() => {
+    if (orderUpdates.readyState == EventSource.CLOSED ) {
+      reconnecting = true;
+      console.log('reconnecting...');
+      setupPlaceOrderListener();
+    } else if (reconnecting){
+      reconnecting = false;
+      console.log('reconnected!');
+    }
+  }, 3000);
 
   function handlePlaceOrderEvent(newOrder) {
     $scope.orders.unshift(bcOrderToManuOrder(newOrder));
